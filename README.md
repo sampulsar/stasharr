@@ -28,15 +28,7 @@ Before using the script, you need to configure a few parameters:
 1. **Open the script in Tampermonkey**.
 2. **Edit the following constants** at the top of the script:
 
-```javascript
-let config = {
-  scheme: "https",
-  userDomain: "*****", // Your Whisparr instance URL/IP
-  apiKey: "*****", // Your Whisparr API key
-  quality: "*****", // Quality profile ID
-  rootFolderPath: "/data/media/videos",
-};
-```
+https://github.com/enymawse/stasherr/blob/d1cbe28443a4be7d247307b035910bbcdbe668e1/stasherr.js#L16-L22
 
 3. **Save your changes**.
 
