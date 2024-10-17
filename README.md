@@ -35,7 +35,7 @@ https://github.com/enymawse/stasherr/blob/d1cbe28443a4be7d247307b035910bbcdbe668
 ## Usage
 
 - Navigate to a scene on [StashDB](https://stashdb.org/).
-- The script will automatically add a button titled "Add scene to Whisparr" under the scene information.
+- The script will automatically add a button titled "Add scene to Whisparr" under the scene information and on the scene card.
 - Click the button to add the scene to your Whisparr instance. You will receive a toast notification indicating the success or failure of the operation.
 
 ## Dependencies

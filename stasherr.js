@@ -68,16 +68,17 @@
     // Function to add the button when the card-header element is found
     function addButtonToCardHeader() {
         const cardHeader = document.querySelector('.scene-info .card-header');
-        if (cardHeader && !document.querySelector('#whisparrButton')) {
-            const triggerButton = createButton();
+        if (cardHeader && !document.querySelector('#whisparrButtonHeader')) {
+            const triggerButton = createHeaderButton();
             cardHeader.appendChild(triggerButton);
-            handleSceneLookup(triggerButton);
+            const sceneID = window.location.href.split('https://stashdb.org/scenes/')[1];
+            handleSceneLookup(triggerButton, sceneID);
         }
     }
 
-    function createButton() {
+    function createHeaderButton() {
         const button = document.createElement('button');
-        button.id = 'whisparrButton';
+        button.id = 'whisparrButtonHeader';
         button.innerHTML = '<i class="fa-solid fa-download"></i> Add scene to Whisparr';
         button.style.cssText = `
             background-color: #e385ed;
@@ -90,8 +91,38 @@
         return button;
     }
 
-    function handleSceneLookup(button) {
-        const sceneID = window.location.href.split('https://stashdb.org/scenes/')[1];
+    // Function to add buttons to each SceneCard
+    function addButtonsToSceneCards() {
+        const sceneCards = document.querySelectorAll('.SceneCard');
+        sceneCards.forEach((sceneCard) => {
+            if (!sceneCard.querySelector('.whisparrButton')) {
+                const button = createCardButton();
+                button.classList.add('whisparrButton');
+                button.style.cssText = `
+                    position: absolute;
+                    top: 10px;
+                    right: 10px;
+                    background-color: transparent;
+                    border: none;
+                    cursor: pointer;
+                    color: #e385ed;
+                `;
+                button.innerHTML = '<i class="fa-solid fa-download"></i>'; // Just the icon
+                sceneCard.style.position = 'relative'; // Ensure the scene card has positioning to allow absolute button placement
+                sceneCard.appendChild(button);
+                const sceneUrl = sceneCard.querySelector('a').href;
+                const sceneID = sceneUrl.split('/scenes/')[1];
+                handleSceneLookup(button, sceneID);
+            }
+        });
+    }
+
+    function createCardButton() {
+        const button = document.createElement('button');
+        return button;
+    }
+
+    function handleSceneLookup(button, sceneID) {
         if (sceneID) {
             const fullApiUrl = `${config.apiUrl}?term=${encodeURIComponent(sceneID)}`;
             fetch(fullApiUrl, { method: 'GET', headers: createHeaders() })
@@ -115,8 +146,8 @@
 
     function updateButtonForExistingScene(button) {
         button.disabled = true;
-        button.innerHTML = '<i class="fa-solid fa-check-circle"></i> Scene already in Whisparr';
-        button.style.backgroundColor = '#4CAF50';
+        button.innerHTML = '<i class="fa-solid fa-check-circle"></i>'; // Update icon
+        button.style.color = '#4CAF50';
     }
 
     function hasBeenAdded(dateString) {
@@ -147,8 +178,8 @@
                         return postResponse.json().then(postData => {
                             console.log('POST Response:', postData);
                             button.disabled = true;
-                            button.innerHTML = '<i class="fa-solid fa-check-circle"></i> Scene added to Whisparr';
-                            button.style.backgroundColor = '#4CAF50';
+                            button.innerHTML = '<i class="fa-solid fa-check-circle"></i>';
+                            button.style.color = '#4CAF50';
                             showToast('Scene added to Whisparr successfully!', true);
                         });
                     })
@@ -184,7 +215,8 @@
     const observer = new MutationObserver(mutations => {
         for (let mutation of mutations) {
             if (mutation.type === 'childList') {
-                addButtonToCardHeader(); // Check and add the button if .card-header is found
+                addButtonsToSceneCards(); // Check and add buttons to all scene cards
+                addButtonToCardHeader(); // Check and add the button to the scene header
             }
         }
     });
@@ -192,7 +224,8 @@
     // Start observing the body for added nodes
     observer.observe(document.body, { childList: true, subtree: true });
 
-    // Call once initially in case the element is already present
+    // Call once initially in case the elements are already present
+    addButtonsToSceneCards();
     addButtonToCardHeader();
 
     // Load FontAwesome from CDN
