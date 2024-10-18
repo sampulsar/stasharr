@@ -1,0 +1,34 @@
+{
+  "name": "stasherr",
+  "version": "0.1.0",
+  "description": "Add a StashDB scene to your local Whisparr instance with a single click using this UserScript",
+  "main": "stasherr.js",
+  "scripts": {
+    "build": "webpack --mode production",
+    "prepare": "husky"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/enymawse/stasherr"
+  },
+  "keywords": [],
+  "author": "Mick Mawse | GitHub:@enymawse",
+  "license": "MIT",
+  "lint-staged": {
+    "**/*": "prettier --write --ignore-unknown"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.12.0",
+    "eslint": "^9.12.0",
+    "eslint-config-prettier": "^9.1.0",
+    "globals": "^15.11.0",
+    "husky": "^9.1.6",
+    "lint-staged": "^15.2.10",
+    "prettier": "3.3.3",
+    "typescript": "^5.6.3",
+    "typescript-eslint": "^8.10.0",
+    "webpack": "^5.95.0",
+    "webpack-cli": "^5.1.4",
+    "webpack-userscript": "^3.2.2"
+  }
+}
