@@ -1,6 +1,10 @@
 import path from "path";
 import { UserscriptPlugin } from "webpack-userscript";
-import metadata from "./metadata";
+import metadata from "./metadata.js";
+import { fileURLToPath } from "url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 export default {
   entry: "./src/index.ts",

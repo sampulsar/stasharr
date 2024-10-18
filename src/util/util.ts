@@ -1,12 +1,13 @@
 import { ScenePayloadBuilder } from "../models/ScenePayloadBuilder";
 import { WhisparrScene } from "../types/types";
 import { Config } from "../models/Config";
+import { faDownload, faCircleCheck } from "@fortawesome/free-solid-svg-icons";
 
 // Utility function to create headers
-export function createHeaders(additionalHeaders = {}) {
+export function createHeaders(config: Config, additionalHeaders = {}) {
   return {
     Accept: "*/*",
-    "X-Api-Key": config.apiKey,
+    "X-Api-Key": config.whisparrAPIKey,
     Connection: "keep-alive",
     ...additionalHeaders,
   };
@@ -25,11 +26,11 @@ export function createCardButton() {
           cursor: pointer;
           color: #ffffffcc;
       `;
-  button.innerHTML = '<i class="fa-solid fa-download"></i>'; // Icon only
+  button.innerHTML = `${faDownload}`; // Icon only
   return button;
 }
 
-export function createHeaderButton() {
+export function createHeaderButton(): HTMLButtonElement {
   const button = document.createElement("button");
   button.id = "whisparrButtonHeader";
   button.style.cssText = `
@@ -43,22 +44,45 @@ export function createHeaderButton() {
   return button;
 }
 
-export function addButtonsToSceneCards() {
-  const sceneCards = document.querySelectorAll(".SceneCard");
+// Utility function to display a custom toast message
+export function showToast(message: string, isSuccess = true) {
+  const toastContainer = document.querySelector(".ToastContainer");
+  if (toastContainer) {
+    const customToast = document.createElement("div");
+    customToast.className = "Toast";
+    customToast.style.cssText = `
+              padding: 10px;
+              background-color: ${isSuccess ? "#4CAF50" : "#F44336"};
+              color: white;
+              margin: 10px;
+              border-radius: 5px;
+          `;
+    customToast.innerText = message;
+    toastContainer.appendChild(customToast);
+    setTimeout(() => customToast.remove(), 5000);
+  } else {
+    console.log("ToastContainer not found.");
+  }
+}
+
+export function addButtonsToSceneCards(config: Config) {
+  const sceneCards = document.querySelectorAll<HTMLElement>(".SceneCard");
   sceneCards.forEach((sceneCard) => {
     if (!sceneCard.querySelector(".whisparrButton")) {
       const button = createCardButton();
       button.classList.add("whisparrButton");
       sceneCard.style.position = "relative"; // Ensure the scene card has positioning to allow absolute button placement
       sceneCard.appendChild(button);
-      const sceneUrl = sceneCard.querySelector("a").href;
-      const sceneID = sceneUrl.split("/scenes/")[1];
-      handleSceneLookup(button, sceneID, false);
+      const sceneUrl = sceneCard.querySelector("a")?.href;
+      const sceneID = sceneUrl?.split("/scenes/")[1];
+      if (sceneUrl && sceneID) {
+        handleSceneLookup(config, button, sceneID, false);
+      }
     }
   });
 }
 
-export function addButtonToCardHeader() {
+export function addButtonToCardHeader(config: Config) {
   const cardHeader = document.querySelector(".scene-info .card-header");
   if (cardHeader && !document.querySelector("#whisparrButtonHeader")) {
     const triggerButton = createHeaderButton();
@@ -66,14 +90,19 @@ export function addButtonToCardHeader() {
     const sceneID = window.location.href.split(
       "https://stashdb.org/scenes/",
     )[1];
-    handleSceneLookup(triggerButton, sceneID, true);
+    handleSceneLookup(config, triggerButton, sceneID, true);
   }
 }
 
-export function handleSceneLookup(button, sceneID, isHeader) {
+export function handleSceneLookup(
+  config: Config,
+  button: HTMLButtonElement,
+  sceneID: string,
+  isHeader: boolean,
+) {
   if (sceneID) {
-    const fullApiUrl = `${config.apiUrl}?term=${encodeURIComponent(sceneID)}`;
-    fetch(fullApiUrl, { method: "GET", headers: createHeaders() })
+    const fullApiUrl = `${config.whisparrAPIUrl}?term=${encodeURIComponent(sceneID)}`;
+    fetch(fullApiUrl, { method: "GET", headers: createHeaders(config) })
       .then((response) => response.json())
       .then((data) => {
         if (data?.length > 0 && hasBeenAdded(data[0].movie.added)) {
@@ -83,7 +112,7 @@ export function handleSceneLookup(button, sceneID, isHeader) {
             updateButtonForNewScene(button);
           }
           button.addEventListener("click", () =>
-            addSceneToWhisparr(sceneID, button, isHeader),
+            addSceneToWhisparr(config, sceneID, button, isHeader),
           );
         }
       })
@@ -97,32 +126,34 @@ export function handleSceneLookup(button, sceneID, isHeader) {
   }
 }
 
-export function updateButtonForExistingScene(button, isHeader) {
+export function updateButtonForExistingScene(
+  button: HTMLButtonElement,
+  isHeader: boolean,
+) {
   button.disabled = true;
   button.style.color = "#ffffffcc";
   if (isHeader) {
-    button.innerHTML =
-      '<i class="fa-solid fa-check-circle"></i> Already in Whisparr';
+    button.innerHTML = `${faCircleCheck} Already in Whisparr`;
   } else {
-    button.innerHTML = '<i class="fa-solid fa-check-circle"></i>'; // Update icon for card button
+    button.innerHTML = `${faCircleCheck}`; // Update icon for card button
   }
   button.style.backgroundColor = "#4CAF50";
 }
 
-export function updateButtonForNewScene(button) {
-  button.innerHTML = '<i class="fa-solid fa-download"></i> Add to Whisparr';
+export function updateButtonForNewScene(button: HTMLButtonElement) {
+  button.innerHTML = `${faCircleCheck} Already in Whisparr`;
   button.style.backgroundColor = "#e385ed";
   button.style.color = "#ffffffcc";
 }
 
-export function hasBeenAdded(dateString) {
+export function hasBeenAdded(dateString: string) {
   return !(
     dateString.startsWith("0001-01-01") || isNaN(new Date(dateString).getTime())
   );
 }
 
 // Add loading state to buttons when clicked
-export function setLoadingState(button, isHeader) {
+export function setLoadingState(button: HTMLButtonElement, isHeader: boolean) {
   button.disabled = true;
   button.style.backgroundColor = "#cccccc";
   if (isHeader) {
@@ -133,20 +164,30 @@ export function setLoadingState(button, isHeader) {
 }
 
 // Function to add the scene to Whisparr
-export function addSceneToWhisparr(sceneID, button, isHeader) {
+export function addSceneToWhisparr(
+  config: Config,
+  sceneID: string,
+  button: HTMLButtonElement,
+  isHeader: boolean,
+) {
   setLoadingState(button, isHeader);
-  const fullApiUrl = `${config.apiUrl}?term=${encodeURIComponent(sceneID)}`;
-  fetch(fullApiUrl, { method: "GET", headers: createHeaders() })
+  const fullApiUrl = `${config.whisparrAPIUrl}?term=${encodeURIComponent(sceneID)}`;
+  fetch(fullApiUrl, { method: "GET", headers: createHeaders(config) })
     .then((response) => response.json())
     .then((data) => {
       if (data?.length > 0) {
         const sceneData = data[0];
-        const payload = createPayload(sceneData);
-        fetch(`${config.scheme}://${config.userDomain}/api/v3/movie`, {
-          method: "POST",
-          headers: createHeaders({ "Content-Type": "application/json" }),
-          body: JSON.stringify(payload),
-        })
+        const payload = createPayload(config, sceneData);
+        fetch(
+          `${config.scheme}://${config.whisparrDomainOrIPWithPort}/api/v3/movie`,
+          {
+            method: "POST",
+            headers: createHeaders(config, {
+              "Content-Type": "application/json",
+            }),
+            body: JSON.stringify(payload),
+          },
+        )
           .then((postResponse) => {
             if (!postResponse.ok) {
               return postResponse.json().then((postData) => {
@@ -176,7 +217,7 @@ export function addSceneToWhisparr(sceneID, button, isHeader) {
 }
 
 // Create payload for Whisparr
-export function createPayload(sceneData: WhisparrScene, config: Config) {
+export function createPayload(config: Config, sceneData: WhisparrScene) {
   return new ScenePayloadBuilder()
     .setTitle(sceneData.movie.title)
     .setStudio(sceneData.movie.studioTitle)
