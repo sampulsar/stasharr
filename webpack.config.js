@@ -15,6 +15,14 @@ export default {
         use: "ts-loader",
         exclude: /node_modules/,
       },
+      {
+        test: /\.scss$/,
+        use: [
+          "style-loader", // Injects CSS into the DOM
+          "css-loader", // Interprets @import and url() like import/require()
+          "sass-loader", // Loads and compiles SCSS files
+        ],
+      },
     ],
   },
   resolve: {

@@ -1,4 +1,4 @@
-export class Options {
+export class Config {
   public whisparrAPIUrl: string;
 
   constructor(

@@ -241,7 +241,6 @@
       title: sceneData.movie.title,
       studio: sceneData.movie.studioTitle,
       foreignId: sceneData.foreignId,
-      year: sceneData.year,
       rootFolderPath: config.rootFolderPath,
       monitored: true,
       addOptions: { searchForMovie: true },
