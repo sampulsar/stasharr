@@ -1,7 +1,12 @@
 import { ScenePayloadBuilder } from "../models/ScenePayloadBuilder";
 import { WhisparrScene } from "../types/types";
 import { Config } from "../models/Config";
-import { faDownload, faCircleCheck } from "@fortawesome/free-solid-svg-icons";
+import {
+  faDownload,
+  faCircleCheck,
+  faSpinner,
+} from "@fortawesome/free-solid-svg-icons";
+import { icon } from "@fortawesome/fontawesome-svg-core";
 
 // Utility function to create headers
 export function createHeaders(config: Config, additionalHeaders = {}) {
@@ -26,7 +31,7 @@ export function createCardButton() {
           cursor: pointer;
           color: #ffffffcc;
       `;
-  button.innerHTML = `${faDownload}`; // Icon only
+  button.innerHTML = icon(faDownload).html[0]; // Icon only
   return button;
 }
 
@@ -41,6 +46,7 @@ export function createHeaderButton(): HTMLButtonElement {
             border-radius: 5px;
             cursor: pointer;
         `;
+  button.innerHTML = icon(faDownload).html[0]; // Icon only
   return button;
 }
 
@@ -133,15 +139,15 @@ export function updateButtonForExistingScene(
   button.disabled = true;
   button.style.color = "#ffffffcc";
   if (isHeader) {
-    button.innerHTML = `${faCircleCheck} Already in Whisparr`;
+    button.innerHTML = `${icon(faCircleCheck).html[0]} Already in Whisparr`;
   } else {
-    button.innerHTML = `${faCircleCheck}`; // Update icon for card button
+    button.innerHTML = `${icon(faCircleCheck).html[0]}`; // Update icon for card button
   }
   button.style.backgroundColor = "#4CAF50";
 }
 
 export function updateButtonForNewScene(button: HTMLButtonElement) {
-  button.innerHTML = `${faCircleCheck} Already in Whisparr`;
+  button.innerHTML = `${icon(faDownload).html[0]} Add to Whisparr`;
   button.style.backgroundColor = "#e385ed";
   button.style.color = "#ffffffcc";
 }
@@ -157,9 +163,9 @@ export function setLoadingState(button: HTMLButtonElement, isHeader: boolean) {
   button.disabled = true;
   button.style.backgroundColor = "#cccccc";
   if (isHeader) {
-    button.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Loading';
+    button.innerHTML = `${icon(faSpinner).html[0]} Loading`;
   } else {
-    button.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>'; // Loading icon only for card button
+    button.innerHTML = `${icon(faSpinner).html[0]}`; // Loading icon only for card button
   }
 }
 
