@@ -7,7 +7,8 @@ export class Config {
     public whisparrAPIKey: string,
     public qualityProfileId: number,
     public rootFolderPath: string,
+    public searchForNewMovie: boolean,
   ) {
-    this.whisparrAPIUrl = `${scheme}://${whisparrDomainOrIPWithPort}/api/v3/lookup/scene`;
+    this.whisparrAPIUrl = `${scheme}://${whisparrDomainOrIPWithPort}/api/v3/`;
   }
 }

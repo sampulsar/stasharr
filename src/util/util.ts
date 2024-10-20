@@ -107,12 +107,19 @@ export function handleSceneLookup(
   isHeader: boolean,
 ) {
   if (sceneID) {
-    const fullApiUrl = `${config.whisparrAPIUrl}?term=${encodeURIComponent(sceneID)}`;
+    const fullApiUrl = `${config.whisparrAPIUrl}movie?stashId=${encodeURIComponent(sceneID)}`;
     fetch(fullApiUrl, { method: "GET", headers: createHeaders(config) })
       .then((response) => response.json())
       .then((data) => {
-        if (data?.length > 0 && hasBeenAdded(data[0].movie.added)) {
-          updateButtonForExistingScene(button, isHeader);
+        if (data?.length > 0) {
+          if (data[0].hasFile) {
+            updateButtonForDownloadedScene(button, isHeader);
+          } else {
+            updateButtonForExistingScene(button, isHeader);
+            button.addEventListener("click", () =>
+              searchSceneInWhisparr(config, sceneID, button, isHeader),
+            );
+          }
         } else {
           if (isHeader) {
             updateButtonForNewScene(button);
@@ -132,18 +139,31 @@ export function handleSceneLookup(
   }
 }
 
-export function updateButtonForExistingScene(
+export function updateButtonForDownloadedScene(
   button: HTMLButtonElement,
   isHeader: boolean,
 ) {
   button.disabled = true;
   button.style.color = "#ffffffcc";
   if (isHeader) {
-    button.innerHTML = `${icon(faCircleCheck).html[0]} Already in Whisparr`;
+    button.innerHTML = `${icon(faCircleCheck).html[0]} Already Downloaded`;
   } else {
     button.innerHTML = `${icon(faCircleCheck).html[0]}`; // Update icon for card button
   }
   button.style.backgroundColor = "#4CAF50";
+}
+
+export function updateButtonForExistingScene(
+  button: HTMLButtonElement,
+  isHeader: boolean,
+) {
+  button.style.color = "#ffffffcc";
+  if (isHeader) {
+    button.innerHTML = `${icon(faCircleCheck).html[0]} Already in Whisparr`;
+  } else {
+    button.innerHTML = `${icon(faCircleCheck).html[0]}`; // Update icon for card button
+  }
+  button.style.backgroundColor = "#FFEE2E";
 }
 
 export function updateButtonForNewScene(button: HTMLButtonElement) {
@@ -169,6 +189,58 @@ export function setLoadingState(button: HTMLButtonElement, isHeader: boolean) {
   }
 }
 
+export function searchSceneInWhisparr(
+  config: Config,
+  sceneID: string,
+  button: HTMLButtonElement,
+  isHeader: boolean,
+) {
+  setLoadingState(button, isHeader);
+  const fullApiUrl = `${config.whisparrAPIUrl}lookup/scene?term=${encodeURIComponent(sceneID)}`;
+  fetch(fullApiUrl, { method: "GET", headers: createHeaders(config) })
+    .then((response) => response.json())
+    .then((data) => {
+      if (data?.length > 0) {
+        const sceneData = data[0];
+        const payload = {
+          name: "MoviesSearch",
+          movieIds: [sceneData.movie.id],
+        };
+        fetch(`${config.whisparrAPIUrl}command`, {
+          method: "POST",
+          headers: createHeaders(config, {
+            "Content-Type": "application/json",
+          }),
+          body: JSON.stringify(payload),
+        })
+          .then((postResponse) => {
+            if (!postResponse.ok) {
+              return postResponse.json().then((postData) => {
+                console.log("POST Response:", postData);
+                showToast(postData[0].errorMessage || "Error occurred.", false);
+              });
+            }
+            return postResponse.json().then((postData) => {
+              console.log("POST Response:", postData);
+              updateButtonForExistingScene(button, isHeader);
+              showToast("Scene search successfully!", true);
+            });
+          })
+          .catch((postError) => {
+            console.error("POST Call Error:", postError);
+            showToast("Error adding scene to Whisparr.", false);
+          });
+      } else {
+        console.log("No scene data returned from API.");
+        showToast("No scene data found for this URL.", false);
+      }
+    })
+    .catch((error) => {
+      console.error("API Call Error:", error);
+      showToast("Error fetching scene data.", false);
+    });
+}
+
 // Function to add the scene to Whisparr
 export function addSceneToWhisparr(
   config: Config,
@@ -177,23 +249,20 @@ export function addSceneToWhisparr(
   isHeader: boolean,
 ) {
   setLoadingState(button, isHeader);
-  const fullApiUrl = `${config.whisparrAPIUrl}?term=${encodeURIComponent(sceneID)}`;
+  const fullApiUrl = `${config.whisparrAPIUrl}lookup/scene?term=${encodeURIComponent(sceneID)}`;
   fetch(fullApiUrl, { method: "GET", headers: createHeaders(config) })
     .then((response) => response.json())
     .then((data) => {
       if (data?.length > 0) {
         const sceneData = data[0];
         const payload = createPayload(config, sceneData);
-        fetch(
-          `${config.scheme}://${config.whisparrDomainOrIPWithPort}/api/v3/movie`,
-          {
-            method: "POST",
-            headers: createHeaders(config, {
-              "Content-Type": "application/json",
-            }),
-            body: JSON.stringify(payload),
-          },
-        )
+        fetch(`${config.whisparrAPIUrl}movie`, {
+          method: "POST",
+          headers: createHeaders(config, {
+            "Content-Type": "application/json",
+          }),
+          body: JSON.stringify(payload),
+        })
           .then((postResponse) => {
             if (!postResponse.ok) {
               return postResponse.json().then((postData) => {
@@ -229,7 +298,7 @@ export function createPayload(config: Config, sceneData: WhisparrScene) {
     .setStudio(sceneData.movie.studioTitle)
     .setForeignId(sceneData.foreignId)
     .setMonitored(true)
-    .setSearchForMovie(true)
+    .setSearchForMovie(config.searchForNewMovie)
     .setRootFolderPath(config.rootFolderPath)
     .setQualityProfileId(config.qualityProfileId)
     .build();
