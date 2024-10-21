@@ -1,3 +1,5 @@
+import { Tooltip } from "bootstrap";
+
 export class ModalBuilder {
   private modalElement: HTMLElement;
   private modalContent: HTMLElement;
@@ -39,6 +41,73 @@ export class ModalBuilder {
     return this;
   }
 
+  addInputField(
+    label: string,
+    name: string,
+    type: "text" | "number" | "email" | "password" | "select",
+    options?: string[], // For dropdown inputs
+    placeholder?: string,
+    tooltip?: string, // Tooltip parameter
+  ): ModalBuilder {
+    const bodyDiv = this.getOrCreateBody();
+
+    const formGroup = document.createElement("div");
+    formGroup.classList.add("form-group");
+
+    // Create label with tooltip if provided
+    const inputLabel = document.createElement("label");
+    inputLabel.innerText = label;
+    inputLabel.setAttribute("for", `input-${name}`);
+
+    if (tooltip) {
+      inputLabel.setAttribute("data-bs-toggle", "tooltip");
+      inputLabel.setAttribute("title", tooltip);
+    }
+
+    formGroup.appendChild(inputLabel);
+
+    let inputElement: HTMLElement;
+    if (type === "select" && options) {
+      inputElement = document.createElement("select");
+      inputElement.classList.add("form-control");
+      inputElement.id = `input-${name}`;
+      inputElement.setAttribute("name", name);
+
+      options.forEach((option) => {
+        const optionElement = document.createElement("option");
+        optionElement.value = option;
+        optionElement.innerText = option;
+        inputElement.appendChild(optionElement);
+      });
+    } else {
+      inputElement = document.createElement("input");
+      (inputElement as HTMLInputElement).type = type;
+      (inputElement as HTMLInputElement).classList.add("form-control");
+      (inputElement as HTMLInputElement).id = `input-${name}`;
+      (inputElement as HTMLInputElement).name = name;
+      if (placeholder) {
+        (inputElement as HTMLInputElement).placeholder = placeholder;
+      }
+    }
+
+    // Add tooltip to the input element as well, if specified
+    if (tooltip) {
+      inputElement.setAttribute("data-bs-toggle", "tooltip");
+      inputElement.setAttribute("title", tooltip);
+    }
+
+    formGroup.appendChild(inputElement);
+    bodyDiv.appendChild(formGroup);
+
+    // Initialize Bootstrap tooltips for new elements
+    this.initializeTooltips(inputLabel);
+    if (inputElement) {
+      this.initializeTooltips(inputElement);
+    }
+
+    return this;
+  }
+
   addCloseButton(
     label: string,
     onClick: (this: HTMLButtonElement, ev: MouseEvent) => any,
@@ -63,6 +132,16 @@ export class ModalBuilder {
     return this.modalElement;
   }
 
+  private getOrCreateBody(): HTMLElement {
+    let bodyDiv = this.modalContent.querySelector<HTMLElement>(".modal-body");
+    if (!bodyDiv) {
+      bodyDiv = document.createElement("div");
+      bodyDiv.classList.add("modal-body");
+      this.modalContent.appendChild(bodyDiv);
+    }
+    return bodyDiv;
+  }
+
   private getOrCreateFooter(): HTMLElement {
     let footerDiv =
       this.modalContent.querySelector<HTMLElement>(".modal-footer");
@@ -84,5 +163,13 @@ export class ModalBuilder {
     button.innerText = label;
     button.addEventListener("click", onClick);
     return button;
+  }
+
+  private initializeTooltips(element: HTMLElement): void {
+    // Initialize Bootstrap tooltips
+    const tooltipTriggerList = [].slice.call([element]);
+    tooltipTriggerList.map(function (tooltipTriggerEl) {
+      return new Tooltip(tooltipTriggerEl);
+    });
   }
 }

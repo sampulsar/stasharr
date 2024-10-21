@@ -17,13 +17,47 @@ function saveSettings(this: HTMLElement, event: MouseEvent) {
     getSettingsModalObject().hide();
     //save settings
     window.location.reload(); // refresh page to reload the userscript after changes
+    // fire toast after page is reloaded and settings have been saved
+    showToast("Settings Saved Successfully", true);
   }
 }
 
 export function initSettingsWindow() {
   const modalBuilder = new ModalBuilder("stasherr-settingsModal")
-    .setModalTitle("Settings")
-    .setModalBody("Modal Body")
+    .setModalTitle("Stasherr Settings")
+    .addInputField("Scheme", "scheme", "select", ["http", "https"], "https")
+    .addInputField(
+      "Domain",
+      "domain",
+      "text",
+      undefined,
+      "Whisparr URL or IP address with port number",
+      "ex. localhost:6969 or whisparr.customdomain.home or whisparr.lan:123",
+    )
+    .addInputField(
+      "API Key",
+      "whisparrApiKey",
+      "password",
+      undefined,
+      "Enter your Whisparr API Key",
+      "Found in Whisparr under Settings -> General",
+    )
+    .addInputField(
+      "Quality Profile",
+      "qualityProfile",
+      "text",
+      undefined,
+      "Name of your desired quality profile",
+      "Found in Whisparr under Settings -> Profiles",
+    )
+    .addInputField(
+      "Root Folder Path",
+      "rootFolderPath",
+      "text",
+      undefined,
+      "Root folder path to where you keep your media",
+      "Found in Whisparr under Settings -> Media Management",
+    )
     .addCloseButton("Close", closeSettingsWindow)
     .addSaveButton("Save Changes", saveSettings);
 
