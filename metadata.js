@@ -9,6 +9,6 @@ export default {
   license: meta.license,
   match: ["*://stashdb.org/*"],
   require: [],
-  grant: "none",
+  grant: "GM_registerMenuCommand",
   "run-at": "document-end",
 };

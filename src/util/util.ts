@@ -196,7 +196,7 @@ export function searchSceneInWhisparr(
   isHeader: boolean,
 ) {
   setLoadingState(button, isHeader);
-  const fullApiUrl = `${config.whisparrAPIUrl}lookup/scene?term=${encodeURIComponent(sceneID)}`;
+  const fullApiUrl = `${config.whisparrAPIUrl}lookup/scene?term=stash:${encodeURIComponent(sceneID)}`;
   fetch(fullApiUrl, { method: "GET", headers: createHeaders(config) })
     .then((response) => response.json())
     .then((data) => {
@@ -249,7 +249,7 @@ export function addSceneToWhisparr(
   isHeader: boolean,
 ) {
   setLoadingState(button, isHeader);
-  const fullApiUrl = `${config.whisparrAPIUrl}lookup/scene?term=${encodeURIComponent(sceneID)}`;
+  const fullApiUrl = `${config.whisparrAPIUrl}lookup/scene?term=stash:${encodeURIComponent(sceneID)}`;
   fetch(fullApiUrl, { method: "GET", headers: createHeaders(config) })
     .then((response) => response.json())
     .then((data) => {

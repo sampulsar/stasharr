@@ -1,5 +1,8 @@
 import { Config } from "./models/Config";
 import { addButtonToCardHeader, addButtonsToSceneCards } from "./util/util";
+import { initGeneralSettings } from "./settings/general";
+import { initMenu } from "./settings/menu";
+import { initSettingsWindow } from "./settings/settings";
 
 const config: Config = new Config(
   "https",
@@ -25,4 +28,9 @@ const config: Config = new Config(
 
   addButtonToCardHeader(config);
   addButtonsToSceneCards(config);
+
+  initSettingsWindow();
+  // initGeneralSettings();
+
+  await initMenu();
 })();
