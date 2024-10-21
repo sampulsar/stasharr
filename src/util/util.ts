@@ -12,7 +12,7 @@ import { icon } from "@fortawesome/fontawesome-svg-core";
 export function createHeaders(config: Config, additionalHeaders = {}) {
   return {
     Accept: "*/*",
-    "X-Api-Key": config.whisparrAPIKey,
+    "X-Api-Key": config.whisparrApiKey,
     Connection: "keep-alive",
     ...additionalHeaders,
   };
@@ -107,7 +107,7 @@ export function handleSceneLookup(
   isHeader: boolean,
 ) {
   if (sceneID) {
-    const fullApiUrl = `${config.whisparrAPIUrl}movie?stashId=${encodeURIComponent(sceneID)}`;
+    const fullApiUrl = `${config.whisparrApiUrl}movie?stashId=${encodeURIComponent(sceneID)}`;
     fetch(fullApiUrl, { method: "GET", headers: createHeaders(config) })
       .then((response) => response.json())
       .then((data) => {
@@ -196,7 +196,7 @@ export function searchSceneInWhisparr(
   isHeader: boolean,
 ) {
   setLoadingState(button, isHeader);
-  const fullApiUrl = `${config.whisparrAPIUrl}lookup/scene?term=stash:${encodeURIComponent(sceneID)}`;
+  const fullApiUrl = `${config.whisparrApiUrl}lookup/scene?term=stash:${encodeURIComponent(sceneID)}`;
   fetch(fullApiUrl, { method: "GET", headers: createHeaders(config) })
     .then((response) => response.json())
     .then((data) => {
@@ -206,7 +206,7 @@ export function searchSceneInWhisparr(
           name: "MoviesSearch",
           movieIds: [sceneData.movie.id],
         };
-        fetch(`${config.whisparrAPIUrl}command`, {
+        fetch(`${config.whisparrApiUrl}command`, {
           method: "POST",
           headers: createHeaders(config, {
             "Content-Type": "application/json",
@@ -249,14 +249,14 @@ export function addSceneToWhisparr(
   isHeader: boolean,
 ) {
   setLoadingState(button, isHeader);
-  const fullApiUrl = `${config.whisparrAPIUrl}lookup/scene?term=stash:${encodeURIComponent(sceneID)}`;
+  const fullApiUrl = `${config.whisparrApiUrl}lookup/scene?term=stash:${encodeURIComponent(sceneID)}`;
   fetch(fullApiUrl, { method: "GET", headers: createHeaders(config) })
     .then((response) => response.json())
     .then((data) => {
       if (data?.length > 0) {
         const sceneData = data[0];
         const payload = createPayload(config, sceneData);
-        fetch(`${config.whisparrAPIUrl}movie`, {
+        fetch(`${config.whisparrApiUrl}movie`, {
           method: "POST",
           headers: createHeaders(config, {
             "Content-Type": "application/json",
@@ -300,6 +300,6 @@ export function createPayload(config: Config, sceneData: WhisparrScene) {
     .setMonitored(true)
     .setSearchForMovie(config.searchForNewMovie)
     .setRootFolderPath(config.rootFolderPath)
-    .setQualityProfileId(config.qualityProfileId)
+    .setQualityProfileId(config.qualityProfile)
     .build();
 }

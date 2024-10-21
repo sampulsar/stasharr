@@ -1,24 +1,16 @@
 import { Config } from "./models/Config";
-import { addButtonToCardHeader, addButtonsToSceneCards } from "./util/util";
-import { initGeneralSettings } from "./settings/general";
-import { initMenu } from "./settings/menu";
-import { initSettingsWindow } from "./settings/settings";
-
-const config: Config = new Config(
-  "https",
-  "localhost:6969",
-  "API_KEY",
-  0,
-  "/path/to/media/",
-);
+import { Settings } from "./settings/settings";
+import Stasherr from "./Stasher";
 
 (async function () {
+  let settings = new Settings(new Config());
+  console.log(settings);
+
   // Mutation observer to handle dynamically loaded content
   const observer = new MutationObserver((mutationsList) => {
     for (const mutation of mutationsList) {
       if (mutation.type === "childList") {
-        addButtonToCardHeader(config);
-        addButtonsToSceneCards(config);
+        // Stasherr.init(settings);
       }
     }
   });
@@ -26,11 +18,10 @@ const config: Config = new Config(
   const observerConfig = { childList: true, subtree: true };
   observer.observe(document.body, observerConfig);
 
-  addButtonToCardHeader(config);
-  addButtonsToSceneCards(config);
+  // Stasherr.init(settings);
+  console.log("settings initialized");
 
-  initSettingsWindow();
-  // initGeneralSettings();
-
-  await initMenu();
+  await Stasherr.initMenu(settings).then(() => {
+    console.log("Menu initialized");
+  });
 })();

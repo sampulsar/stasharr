@@ -36,7 +36,6 @@ export class ModalBuilder {
     const bodyDiv = document.createElement("div");
     bodyDiv.classList.add("modal-body");
     bodyDiv.innerText = bodyContent;
-
     this.modalContent.appendChild(bodyDiv);
     return this;
   }
@@ -47,6 +46,7 @@ export class ModalBuilder {
     type: "text" | "number" | "email" | "password" | "select",
     options?: string[], // For dropdown inputs
     placeholder?: string,
+    defaultValue?: string,
     tooltip?: string, // Tooltip parameter
   ): ModalBuilder {
     const bodyDiv = this.getOrCreateBody();
@@ -57,7 +57,7 @@ export class ModalBuilder {
     // Create label with tooltip if provided
     const inputLabel = document.createElement("label");
     inputLabel.innerText = label;
-    inputLabel.setAttribute("for", `input-${name}`);
+    inputLabel.setAttribute("for", `stasherr-${name}`);
 
     if (tooltip) {
       inputLabel.setAttribute("data-bs-toggle", "tooltip");
@@ -70,7 +70,7 @@ export class ModalBuilder {
     if (type === "select" && options) {
       inputElement = document.createElement("select");
       inputElement.classList.add("form-control");
-      inputElement.id = `input-${name}`;
+      inputElement.id = `stasherr-${name}`;
       inputElement.setAttribute("name", name);
 
       options.forEach((option) => {
@@ -83,10 +83,19 @@ export class ModalBuilder {
       inputElement = document.createElement("input");
       (inputElement as HTMLInputElement).type = type;
       (inputElement as HTMLInputElement).classList.add("form-control");
-      (inputElement as HTMLInputElement).id = `input-${name}`;
+      (inputElement as HTMLInputElement).id = `stasherr-${name}`;
       (inputElement as HTMLInputElement).name = name;
       if (placeholder) {
         (inputElement as HTMLInputElement).placeholder = placeholder;
+      }
+      if (defaultValue) {
+        (inputElement as HTMLInputElement).value = defaultValue;
+      }
+      if (type === "password") {
+        (inputElement as HTMLInputElement).setAttribute(
+          "autocomplete",
+          "apikey",
+        );
       }
     }
 
@@ -135,9 +144,11 @@ export class ModalBuilder {
   private getOrCreateBody(): HTMLElement {
     let bodyDiv = this.modalContent.querySelector<HTMLElement>(".modal-body");
     if (!bodyDiv) {
+      let form = document.createElement("form");
       bodyDiv = document.createElement("div");
       bodyDiv.classList.add("modal-body");
-      this.modalContent.appendChild(bodyDiv);
+      form.appendChild(bodyDiv);
+      this.modalContent.appendChild(form);
     }
     return bodyDiv;
   }
