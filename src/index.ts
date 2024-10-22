@@ -3,7 +3,6 @@ import { Settings } from "./settings/Settings";
 
 (async function () {
   let settings = new Settings();
-  console.log(settings);
 
   // Initialize buttons on initial load
   ButtonController.initializeButtons(settings.config);
@@ -30,6 +29,5 @@ import { Settings } from "./settings/Settings";
   observer.observe(document.body, observerConfig);
 
   // Initialize the menu
-  console.log("settings initialized");
   await GM_registerMenuCommand("Settings", settings.openSettingsModal, "s");
 })();

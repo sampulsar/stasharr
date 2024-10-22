@@ -20,7 +20,6 @@ export class Settings {
     this._config.load();
     this._modal = new Modal(this.buildSettingsModal());
     this._configSchema = ConfigSchema;
-    console.log(this);
   }
 
   private buildSettingsModal(): HTMLElement {

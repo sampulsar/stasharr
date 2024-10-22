@@ -13,13 +13,9 @@ import { SceneStatus } from "../enums/SceneStatus";
 
 export class ButtonController {
   static initializeButtons(config: Config) {
-    console.log("initializeButtons called");
     const sceneCards = document.querySelectorAll<HTMLElement>(
       ".SceneCard:not([data-initialized])",
     );
-
-    console.log("SceneCards:", sceneCards);
-
     sceneCards.forEach(async (sceneCard) => {
       if (!sceneCard.querySelector(".whisparrButton")) {
         const button = ButtonController.createCardButton();
@@ -39,6 +35,7 @@ export class ButtonController {
             );
           } catch (error) {
             ToastService.showToast(JSON.stringify(error), false);
+            console.log(JSON.stringify(error), error);
           }
         }
       }
@@ -48,7 +45,6 @@ export class ButtonController {
       const cardHeader: HTMLElement | null =
         document.querySelector<HTMLElement>(".scene-info .card-header");
 
-      console.log("CardHeader: ", cardHeader);
       if (cardHeader && !document.querySelector("#whisparrButtonHeader")) {
         const isHeader = true;
         const triggerButton = ButtonController.createHeaderButton();
@@ -72,6 +68,7 @@ export class ButtonController {
             });
           } catch (error) {
             ToastService.showToast(JSON.stringify(error), false);
+            console.log(JSON.stringify(error), error);
           }
         }
       }
@@ -111,6 +108,7 @@ export class ButtonController {
       ToastService.showToast("Scene added successfully!", true);
     } catch (error) {
       ToastService.showToast(JSON.stringify(error), false);
+      console.log(JSON.stringify(error), error);
     }
   }
 
