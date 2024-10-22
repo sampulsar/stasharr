@@ -5,7 +5,11 @@ export default {
   description: meta.description,
   version: meta.version,
   author: meta.author,
-  source: meta.source,
+  source: meta.repository.url,
+  updateURL: meta.repository.url + "/releases/latest/download/stasherr.meta.js",
+  downloadURL:
+    meta.repository.url + "/releases/latest/download/stasherr.user.js",
+  supportURL: meta.repository.url,
   license: meta.license,
   match: ["*://stashdb.org/*"],
   require: [],
