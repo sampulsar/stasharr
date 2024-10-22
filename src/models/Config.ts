@@ -39,11 +39,11 @@ export class Config {
   valid(): boolean {
     console.log("Validating configuration");
     try {
-      ConfigSchema.parse(this); // Validate against the schema
-      return true; // If validation passes
+      ConfigSchema.parse(this);
+      return true;
     } catch (error) {
-      console.error("Validation failed:", error); // Log validation errors
-      return false; // If validation fails
+      console.error("Validation failed:", error);
+      return false;
     }
   }
 }

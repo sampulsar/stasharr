@@ -1,5 +1,3 @@
-// types for the Whisparr API
-
 type OriginalLanguage = {
   id: number;
   name: string;
@@ -33,11 +31,11 @@ type Movie = {
   stashId: string;
   titleSlug: string;
   folder: string;
-  genres: string[]; // Assuming genres are simple strings
-  tags: string[]; // Assuming tags are simple strings
-  added: string; // ISO date format
-  ratings: Record<string, any>; // Assuming ratings are a key-value structure
-  credits: any[]; // Assuming credits could be an array of objects
+  genres: string[];
+  tags: string[];
+  added: string;
+  ratings: Record<string, any>;
+  credits: any[];
   itemType: string;
 };
 

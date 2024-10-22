@@ -1,16 +1,27 @@
-import { Config } from "./models/Config";
-import { Settings } from "./settings/settings";
-import Stasherr from "./Stasher";
+import { ButtonController } from "./controller/ButtonController";
+import { Settings } from "./settings/Settings";
 
 (async function () {
-  let settings = new Settings(new Config());
+  let settings = new Settings();
   console.log(settings);
 
-  // Mutation observer to handle dynamically loaded content
+  // Initialize buttons on initial load
+  ButtonController.initializeButtons(settings.config);
+
   const observer = new MutationObserver((mutationsList) => {
     for (const mutation of mutationsList) {
-      if (mutation.type === "childList") {
-        // Stasherr.init(settings);
+      if (mutation.type === "childList" && mutation.addedNodes.length > 0) {
+        mutation.addedNodes.forEach((node) => {
+          if (node instanceof HTMLElement) {
+            if (
+              node.matches(".SceneCard, .card-header") ||
+              node.querySelector(".SceneCard, .card-header")
+            ) {
+              // Re-initializes when there are new SceneCards or Card Headers
+              ButtonController.initializeButtons(settings.config);
+            }
+          }
+        });
       }
     }
   });
@@ -18,10 +29,7 @@ import Stasherr from "./Stasher";
   const observerConfig = { childList: true, subtree: true };
   observer.observe(document.body, observerConfig);
 
-  // Stasherr.init(settings);
+  // Initialize the menu
   console.log("settings initialized");
-
-  await Stasherr.initMenu(settings).then(() => {
-    console.log("Menu initialized");
-  });
+  await GM_registerMenuCommand("Settings", settings.openSettingsModal, "s");
 })();

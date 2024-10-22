@@ -71,6 +71,10 @@ export class ModalBuilder {
       inputElement = document.createElement("select");
       inputElement.classList.add("form-control");
       inputElement.id = `stasherr-${name}`;
+      (inputElement as HTMLInputElement).setAttribute(
+        "autocomplete",
+        `stasherr-${name}`,
+      );
       inputElement.setAttribute("name", name);
 
       options.forEach((option) => {
@@ -90,12 +94,6 @@ export class ModalBuilder {
       }
       if (defaultValue) {
         (inputElement as HTMLInputElement).value = defaultValue;
-      }
-      if (type === "password") {
-        (inputElement as HTMLInputElement).setAttribute(
-          "autocomplete",
-          "apikey",
-        );
       }
     }
 

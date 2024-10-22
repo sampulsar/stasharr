@@ -1,41 +1,10 @@
 import { Modal } from "bootstrap";
-import { showToast } from "../util/util";
-import { ModalBuilder } from "./ModalBuilder";
+import { ModalBuilder } from "../builder/ModalBuilder";
 import { Config, ConfigSchema } from "../models/Config";
 import { YesNo } from "../enums/YesNo";
-import { z } from "zod";
 import { SettingKeys } from "../enums/SettingKeys";
-
-export function openSettingsMenu() {
-  getSettingsModalObject().show();
-}
-
-export function closeSettingsWindow(this: HTMLElement, event: MouseEvent) {
-  if (event.target === this) {
-    getSettingsModalObject().hide();
-  }
-}
-
-export function saveSettings(this: HTMLElement, event: MouseEvent) {
-  if (event.target === this) {
-    getSettingsModalObject().hide();
-    //save settings
-    window.location.reload(); // refresh page to reload the userscript after changes
-    // fire toast after page is reloaded and settings have been saved
-    showToast("Settings Saved Successfully", true);
-  }
-}
-
-function getSettingsModalObject(): Modal {
-  const docModal = document.getElementById("stasherr-settingsModal")!;
-  if (docModal) {
-    const myModal = new Modal(docModal);
-    return myModal;
-  } else {
-    showToast("Cannot get the Settings Modal", false);
-    throw new Error("Cannot find element with id: stasherr-settingsModal");
-  }
-}
+import WhisparrService from "../service/WhisparrService";
+import ToastService from "../service/ToastService";
 
 export class Settings {
   private _modal: Modal;
@@ -46,12 +15,11 @@ export class Settings {
    * Creating a new instance of Settings builds the necessary functionality
    * and logic to allow the user to save and edit settings
    */
-  constructor(config: Config) {
-    this._config = config;
+  constructor() {
+    this._config = new Config();
     this._config.load();
     this._modal = new Modal(this.buildSettingsModal());
     this._configSchema = ConfigSchema;
-
     console.log(this);
   }
 
@@ -62,7 +30,7 @@ export class Settings {
         "Scheme",
         SettingKeys.Scheme,
         "select",
-        ["http", "https"],
+        ["https"],
         this._config.scheme,
       )
       .addInputField(
@@ -122,7 +90,19 @@ export class Settings {
     this._modal.hide();
   }
 
-  private saveModalHandler() {
+  private async validateSettings(): Promise<boolean> {
+    try {
+      const config = this.config;
+      const response = await WhisparrService.healthCheck(config);
+      return response.ok;
+    } catch (error) {
+      ToastService.showToast("Validation failed", false);
+      console.log("Validation failed", error);
+    }
+    return false;
+  }
+
+  private async saveModalHandler() {
     // Create a config object from the input values
     const configData = {
       scheme: this.getInputValue(SettingKeys.Scheme),
@@ -139,9 +119,12 @@ export class Settings {
     // Validate the config data using the schema
     const parsedConfig = this._configSchema.safeParse(configData);
 
-    if (!parsedConfig.success) {
+    if (!parsedConfig.success || !(await this.validateSettings())) {
       // Show an error if validation fails
-      showToast("Invalid settings. Please review your inputs.", false);
+      ToastService.showToast(
+        "Invalid settings. Please review your inputs.",
+        false,
+      );
       console.error(parsedConfig.error);
       return;
     }
@@ -157,7 +140,7 @@ export class Settings {
     window.location.reload();
 
     // Provide feedback that settings were saved
-    showToast("Settings Saved Successfully", true);
+    ToastService.showToast("Settings Saved Successfully", true);
   }
 
   private getInputValue(id: string): string {
@@ -166,17 +149,16 @@ export class Settings {
   }
 
   public openSettingsModal(event: MouseEvent | KeyboardEvent) {
-    console.log(this); // this is undefined...
     const modal = document.getElementById("stasherr-settingsModal");
     if (modal) {
       const m = new Modal(modal);
       m.show();
     } else {
-      showToast("Stasherr failed to build modal");
+      ToastService.showToast("Stasherr failed to build modal");
     }
   }
 
-  public getConfig(): Config {
+  get config(): Config {
     return this._config;
   }
 }

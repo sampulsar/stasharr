@@ -10,5 +10,4 @@ export default {
   match: ["*://stashdb.org/*"],
   require: [],
   grant: "GM_registerMenuCommand",
-  "run-at": "document-end",
 };
