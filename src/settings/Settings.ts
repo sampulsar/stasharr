@@ -89,9 +89,8 @@ export class Settings {
     this._modal.hide();
   }
 
-  private async validateSettings(): Promise<boolean> {
+  private async validateSettings(config: Config): Promise<boolean> {
     try {
-      const config = this.config;
       const response = await WhisparrService.healthCheck(config);
       return response.ok;
     } catch (error) {
@@ -104,21 +103,24 @@ export class Settings {
   private async saveModalHandler() {
     // Create a config object from the input values
     const configData = {
-      scheme: this.getInputValue(SettingKeys.Scheme),
-      domain: this.getInputValue(SettingKeys.Domain),
-      whisparrApiKey: this.getInputValue(SettingKeys.ApiKey),
+      scheme: Settings.getInputValue(SettingKeys.Scheme),
+      domain: Settings.getInputValue(SettingKeys.Domain),
+      whisparrApiKey: Settings.getInputValue(SettingKeys.ApiKey),
       qualityProfile: Number.parseInt(
-        this.getInputValue(SettingKeys.QualityProfile),
+        Settings.getInputValue(SettingKeys.QualityProfile),
       ),
-      rootFolderPath: this.getInputValue(SettingKeys.RootFolderPath),
+      rootFolderPath: Settings.getInputValue(SettingKeys.RootFolderPath),
       searchForNewMovie:
-        this.getInputValue(SettingKeys.SearchForNewMovie) === YesNo.Yes,
+        Settings.getInputValue(SettingKeys.SearchForNewMovie) === YesNo.Yes,
     };
 
     // Validate the config data using the schema
     const parsedConfig = this._configSchema.safeParse(configData);
 
-    if (!parsedConfig.success || !(await this.validateSettings())) {
+    if (
+      !parsedConfig.success ||
+      !(await this.validateSettings(parsedConfig.data as Config))
+    ) {
       // Show an error if validation fails
       ToastService.showToast(
         "Invalid settings. Please review your inputs.",
@@ -142,7 +144,7 @@ export class Settings {
     ToastService.showToast("Settings Saved Successfully", true);
   }
 
-  private getInputValue(id: string): string {
+  private static getInputValue(id: string): string {
     const input = document.getElementById(`stasherr-${id}`) as HTMLInputElement;
     return input ? input.value : "";
   }
