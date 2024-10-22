@@ -1,0 +1,25 @@
+@use "toast";
+@use "./mixins";
+@use "./variables";
+@use "./bootstrap";
+
+#whisparrButtonHeader {
+  background-color: bootstrap.$primary;
+  color: bootstrap.$white;
+  padding: 10px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.SceneCard .whisparrButton {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background-color: bootstrap.$primary;
+  border: none;
+  border-radius: 10%;
+  padding: 5px;
+  cursor: pointer;
+  color: bootstrap.$white;
+}
