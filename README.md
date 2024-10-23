@@ -1,6 +1,6 @@
 # stasherr
 
-# Add StashID to Whisparr
+![GitHub Release](https://img.shields.io/github/v/release/enymawse/stasherr)
 
 This Tampermonkey userscript allows you to add a StashDB scene to your local Whisparr instance with a single click. It automatically checks if the scene is already in Whisparr and displays appropriate messages.
 
