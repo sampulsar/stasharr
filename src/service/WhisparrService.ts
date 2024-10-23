@@ -1,6 +1,7 @@
 import { SceneStatus } from "../enums/SceneStatus";
 import { Config } from "../models/Config";
 import { ScenePayloadBuilder } from "../builder/ScenePayloadBuilder";
+import { Whisparr } from "../types/types";
 
 export default class WhisparrService {
   /**
@@ -200,5 +201,45 @@ export default class WhisparrService {
       console.error("API Call Error:", error);
       throw new Error("Error checking scene in Whisparr.");
     }
+  }
+
+  static async getQualityProfiles(
+    config: Config,
+  ): Promise<Whisparr.QualityProfile[]> {
+    const endpoint = "qualityProfile";
+    const response = await WhisparrService.request(
+      config,
+      endpoint,
+      "GET",
+      undefined,
+      {
+        "Content-Type": "application/json",
+      },
+    )
+      .then((response) => response.json())
+      .then((json) => {
+        console.log(json);
+        return json as Whisparr.QualityProfile[];
+      });
+    return response;
+  }
+
+  static async getRootFolders(config: Config): Promise<Whisparr.RootFolder[]> {
+    const endpoint = "rootFolder";
+    const response = await WhisparrService.request(
+      config,
+      endpoint,
+      "GET",
+      undefined,
+      {
+        "Content-Type": "application/json",
+      },
+    )
+      .then((response) => response.json())
+      .then((json) => {
+        console.log(json);
+        return json as Whisparr.RootFolder[];
+      });
+    return response;
   }
 }
