@@ -14,8 +14,10 @@ This Tampermonkey userscript allows you to add a StashDB scene to your local Whi
 
 1. **Install Tampermonkey**: If you haven't already, install the [Tampermonkey](https://www.tampermonkey.net/) browser extension.
 2. **Click the latest release** or [click here](https://github.com/enymawse/stasherr/releases/latest/download/stasherr.user.js):
- - Select the file titled `stasherr.user.js`
- - Tampermonkey should prompt to install, choose to install.
+
+- Select the file titled `stasherr.user.js`
+- Tampermonkey should prompt to install, choose to install.
+
 3. **Configure**
 
 ## Configuration
@@ -52,3 +54,6 @@ This script is released under the GPL License. Feel free to use and modify it as
 
 <em>Initial script function inspired by [randybudweiser](https://github.com/randybudweiser/stash2whisparr)</em>
 
+## Development
+
+See [DEV GUIDE](DEVELOPMENT.md)
