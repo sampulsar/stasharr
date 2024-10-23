@@ -6,7 +6,10 @@
   "scripts": {
     "build": "NODE_ENV=production webpack --config webpack.config.js --mode production",
     "prepare": "husky",
-    "dev": "NODE_ENV=development webpack serve --config webpack.config.js"
+    "dev": "NODE_ENV=development webpack serve --config webpack.config.js",
+    "preversion": "",
+    "version": "npm run build",
+    "postversion": "git push && git push --tags"
   },
   "repository": {
     "type": "git",

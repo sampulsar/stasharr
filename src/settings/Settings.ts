@@ -86,7 +86,11 @@ export class Settings {
   }
 
   private closeModalHandler() {
-    this._modal.hide();
+    const modal = document.getElementById("stasherr-settingsModal");
+    if (modal) {
+      const bsModal = new Modal(modal);
+      bsModal.hide();
+    }
   }
 
   private async validateSettings(config: Config): Promise<boolean> {

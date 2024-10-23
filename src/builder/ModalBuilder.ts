@@ -27,7 +27,13 @@ export class ModalBuilder {
     titleElement.classList.add("modal-title");
     titleElement.innerText = title;
 
+    const closeElement = document.createElement("button");
+    closeElement.classList.add("btn-close");
+    closeElement.setAttribute("data-bs-dismiss", "modal");
+    closeElement.ariaLabel = "Close";
+
     headerDiv.appendChild(titleElement);
+    headerDiv.appendChild(closeElement);
     this.modalContent.appendChild(headerDiv);
     return this;
   }
@@ -121,6 +127,7 @@ export class ModalBuilder {
   ): ModalBuilder {
     const footerDiv = this.getOrCreateFooter();
     const closeButton = this.createButton(label, "btn-secondary", onClick);
+    closeButton.setAttribute("data-bs-dismiss", "modal");
     footerDiv.appendChild(closeButton);
     return this;
   }
@@ -131,6 +138,7 @@ export class ModalBuilder {
   ): ModalBuilder {
     const footerDiv = this.getOrCreateFooter();
     const saveButton = this.createButton(label, "btn-primary", onClick);
+    saveButton.setAttribute("data-bs-dismiss", "modal");
     footerDiv.appendChild(saveButton);
     return this;
   }
