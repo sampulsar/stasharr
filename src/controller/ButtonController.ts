@@ -101,7 +101,7 @@ export class ButtonController {
     button: HTMLButtonElement,
     isHeader: boolean = false,
   ) {
-    ButtonController.setLoadingState(button);
+    ButtonController.setLoadingState(button, isHeader);
     try {
       await WhisparrService.searchAndAddScene(config, sceneID);
       ButtonController.updateButtonForExistingScene(button, isHeader);
@@ -151,9 +151,9 @@ export class ButtonController {
     button.disabled = true;
     button.style.backgroundColor = "#cccccc";
     if (isHeader) {
-      button.innerHTML = `${icon(faSpinner).html[0]} Loading`;
+      button.innerHTML = `${icon(faSpinner, { classes: ["fa-spin"] }).html} Loading`;
     } else {
-      button.innerHTML = `${icon(faSpinner).html[0]}`;
+      button.innerHTML = `${icon(faSpinner, { classes: ["fa-spin"] }).html}`;
     }
   }
 
