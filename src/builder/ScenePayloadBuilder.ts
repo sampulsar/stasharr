@@ -1,7 +1,7 @@
-import { WhisparrMoviePayload } from "../types/types";
+import { Whisparr } from "../types/types";
 
 export class ScenePayloadBuilder {
-  payload: WhisparrMoviePayload;
+  payload: Whisparr.MoviePayload;
   constructor() {
     this.payload = {
       title: "",
