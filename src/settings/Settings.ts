@@ -23,8 +23,8 @@ export class Settings {
   }
 
   private buildSettingsModal(): HTMLElement {
-    const modalBuilder = new ModalBuilder("stasherr-settingsModal")
-      .setModalTitle("Stasherr Settings")
+    const modalBuilder = new ModalBuilder("stasharr-settingsModal")
+      .setModalTitle("stasharr Settings")
       .addInputField(
         "Scheme",
         SettingKeys.Scheme,
@@ -86,7 +86,7 @@ export class Settings {
   }
 
   private closeModalHandler() {
-    const modal = document.getElementById("stasherr-settingsModal");
+    const modal = document.getElementById("stasharr-settingsModal");
     if (modal) {
       const bsModal = new Modal(modal);
       bsModal.hide();
@@ -149,17 +149,17 @@ export class Settings {
   }
 
   private static getInputValue(id: string): string {
-    const input = document.getElementById(`stasherr-${id}`) as HTMLInputElement;
+    const input = document.getElementById(`stasharr-${id}`) as HTMLInputElement;
     return input ? input.value : "";
   }
 
   public openSettingsModal(event: MouseEvent | KeyboardEvent) {
-    const modal = document.getElementById("stasherr-settingsModal");
+    const modal = document.getElementById("stasharr-settingsModal");
     if (modal) {
       const m = new Modal(modal);
       m.show();
     } else {
-      ToastService.showToast("Stasherr failed to build modal");
+      ToastService.showToast("stasharr failed to build modal");
     }
   }
 

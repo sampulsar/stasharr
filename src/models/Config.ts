@@ -25,7 +25,7 @@ export class Config {
 
   load() {
     console.log("Loading configuration");
-    const savedConfig = localStorage.getItem("stasherr-config");
+    const savedConfig = localStorage.getItem("stasharr-config");
     if (savedConfig) {
       Object.assign(this, JSON.parse(savedConfig));
     }
@@ -33,7 +33,7 @@ export class Config {
 
   save() {
     console.log("Saving configuration");
-    localStorage.setItem("stasherr-config", JSON.stringify(this));
+    localStorage.setItem("stasharr-config", JSON.stringify(this));
   }
 
   valid(): boolean {

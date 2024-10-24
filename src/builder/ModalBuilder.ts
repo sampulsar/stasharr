@@ -63,7 +63,7 @@ export class ModalBuilder {
     // Create label with tooltip if provided
     const inputLabel = document.createElement("label");
     inputLabel.innerText = label;
-    inputLabel.setAttribute("for", `stasherr-${name}`);
+    inputLabel.setAttribute("for", `stasharr-${name}`);
 
     if (tooltip) {
       inputLabel.setAttribute("data-bs-toggle", "tooltip");
@@ -76,10 +76,10 @@ export class ModalBuilder {
     if (type === "select" && options) {
       inputElement = document.createElement("select");
       inputElement.classList.add("form-control");
-      inputElement.id = `stasherr-${name}`;
+      inputElement.id = `stasharr-${name}`;
       (inputElement as HTMLInputElement).setAttribute(
         "autocomplete",
-        `stasherr-${name}`,
+        `stasharr-${name}`,
       );
       inputElement.setAttribute("name", name);
 
@@ -93,7 +93,7 @@ export class ModalBuilder {
       inputElement = document.createElement("input");
       (inputElement as HTMLInputElement).type = type;
       (inputElement as HTMLInputElement).classList.add("form-control");
-      (inputElement as HTMLInputElement).id = `stasherr-${name}`;
+      (inputElement as HTMLInputElement).id = `stasharr-${name}`;
       (inputElement as HTMLInputElement).name = name;
       if (placeholder) {
         (inputElement as HTMLInputElement).placeholder = placeholder;

@@ -1,6 +1,6 @@
-# stasherr
+# stasharr
 
-![GitHub Release](https://img.shields.io/github/v/release/enymawse/stasherr)
+![GitHub Release](https://img.shields.io/github/v/release/enymawse/stasharr)
 
 This Tampermonkey userscript allows you to add a StashDB scene to your local Whisparr instance with a single click. It automatically checks if the scene is already in Whisparr and displays appropriate messages.
 
@@ -13,9 +13,9 @@ This Tampermonkey userscript allows you to add a StashDB scene to your local Whi
 ## Installation
 
 1. **Install Tampermonkey**: If you haven't already, install the [Tampermonkey](https://www.tampermonkey.net/) browser extension.
-2. **Click the latest release** or [click here](https://github.com/enymawse/stasherr/releases/latest/download/stasherr.user.js):
+2. **Click the latest release** or [click here](https://github.com/enymawse/stasharr/releases/latest/download/stasharr.user.js):
 
-- Select the file titled `stasherr.user.js`
+- Select the file titled `stasharr.user.js`
 - Tampermonkey should prompt to install, choose to install.
 
 3. **Configure**
@@ -26,7 +26,7 @@ Before using the script, you need to configure a few parameters:
 
 1. **Navigate to [StashDB](https://stashdb.org)**.
 2. **Open the Tampermonkey extension** in your browser:
-3. **Click Settings** under the stasherr script and fill in your details:
+3. **Click Settings** under the stasharr script and fill in your details:
 
 ![image](https://github.com/user-attachments/assets/9184f6b3-c5d2-4d70-a6b2-8f9369e5a65b)
 

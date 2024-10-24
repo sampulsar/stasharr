@@ -30,6 +30,6 @@ jobs:
       - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
-          files: ./dist/stasherr.user.js
+          files: ./dist/stasharr.user.js
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
