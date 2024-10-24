@@ -28,7 +28,8 @@ Before using the script, you need to configure a few parameters:
 2. **Open the Tampermonkey extension** in your browser:
 3. **Click Settings** under the stasharr script and fill in your details:
 
-![image](https://github.com/user-attachments/assets/9184f6b3-c5d2-4d70-a6b2-8f9369e5a65b)
+![image](https://github.com/user-attachments/assets/c450f902-4d62-400c-a31e-062fb28badab)
+
 
 3. **Save your changes**. If your configuration is valid (i.e. your whisparr instance can be reached) your settings will be saved.
 
