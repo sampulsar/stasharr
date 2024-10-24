@@ -29,8 +29,10 @@ export class Settings {
         "Scheme",
         SettingKeys.Scheme,
         "select",
-        ["https"],
+        ["https", "http"],
+        undefined,
         this._config.scheme,
+        "http or https",
       )
       .addInputField(
         "Domain",
@@ -96,7 +98,7 @@ export class Settings {
   private async validateSettings(config: Config): Promise<boolean> {
     try {
       const response = await WhisparrService.healthCheck(config);
-      return response.ok;
+      return response.status == 200;
     } catch (error) {
       ToastService.showToast("Validation failed", false);
       console.log("Validation failed", error);
@@ -140,8 +142,7 @@ export class Settings {
     // Save the validated config to persistent storage
     this._config.save();
 
-    // Hide the modal and refresh to apply changes
-    this._modal.hide();
+    // Refresh to apply changes
     window.location.reload();
 
     // Provide feedback that settings were saved
@@ -155,6 +156,15 @@ export class Settings {
 
   public openSettingsModal(event: MouseEvent | KeyboardEvent) {
     const modal = document.getElementById("stasharr-settingsModal");
+    // ensure options of select elements are updated appropriately
+    const schemeOption = document.querySelector(
+      `#stasharr-scheme [value='${JSON.parse(localStorage.getItem("stasharr-config")!).scheme}']`,
+    );
+    const searchOnAddOption = document.querySelector(
+      `#stasharr-searchForNewMovie [value='${JSON.parse(localStorage.getItem("stasharr-config")!).searchForNewMovie}']`,
+    );
+    schemeOption?.setAttribute("selected", "true");
+    searchOnAddOption?.setAttribute("selected", "true");
     if (modal) {
       const m = new Modal(modal);
       m.show();

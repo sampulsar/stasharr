@@ -10,6 +10,7 @@ import { extractSceneID } from "../util/util";
 import WhisparrService from "../service/WhisparrService";
 import ToastService from "../service/ToastService";
 import { SceneStatus } from "../enums/SceneStatus";
+import { Styles } from "../enums/Styles";
 
 export class ButtonController {
   static initializeButtons(config: Config) {
@@ -114,17 +115,7 @@ export class ButtonController {
 
   private static createCardButton(): HTMLButtonElement {
     const button = document.createElement("button");
-    button.style.cssText = `
-        position: absolute;
-        top: 10px;
-        right: 10px;
-        background-color: #e385ed;
-        border: none;
-        border-radius: 10%;
-        padding: 5px;
-        cursor: pointer;
-        color: #ffffffcc;
-      `;
+    button.style.cssText = Styles.CardButton.style;
     button.innerHTML = icon(faDownload).html[0]; // Icon only
     return button;
   }
@@ -132,14 +123,7 @@ export class ButtonController {
   private static createHeaderButton(): HTMLButtonElement {
     const button = document.createElement("button");
     button.id = "whisparrButtonHeader";
-    button.style.cssText = `
-        background-color: #e385ed;
-        color: #ffffffcc;
-        padding: 10px;
-        border: none;
-        border-radius: 5px;
-        cursor: pointer;
-      `;
+    button.style.cssText = Styles.HeaderButton.style;
     button.innerHTML = icon(faDownload).html[0]; // Icon only
     return button;
   }
@@ -149,12 +133,8 @@ export class ButtonController {
     isHeader: boolean = false,
   ): void {
     button.disabled = true;
-    button.style.backgroundColor = "#cccccc";
-    if (isHeader) {
-      button.innerHTML = `${icon(faSpinner, { classes: ["fa-spin"] }).html} Loading`;
-    } else {
-      button.innerHTML = `${icon(faSpinner, { classes: ["fa-spin"] }).html}`;
-    }
+    button.style.backgroundColor = Styles.Color.GRAY;
+    button.innerHTML = `${isHeader ? icon(faSpinner, { classes: ["fa-spin"] }).html : ""} Loading`;
   }
 
   // Update button states
@@ -166,7 +146,7 @@ export class ButtonController {
       button,
       faCircleCheck,
       "Already Downloaded",
-      "#4CAF50",
+      Styles.Color.YELLOW,
       isHeader,
       true,
     );
@@ -180,7 +160,7 @@ export class ButtonController {
       button,
       faCircleCheck,
       "Already in Whisparr",
-      "#FFEE2E",
+      Styles.Color.GREEN,
       isHeader,
       true,
     );
@@ -194,7 +174,7 @@ export class ButtonController {
       button,
       faDownload,
       "Add to Whisparr",
-      "#e385ed",
+      Styles.Color.PINK,
       isHeader,
     );
   }
@@ -208,10 +188,8 @@ export class ButtonController {
     disable: boolean = false,
   ): void {
     button.disabled = disable;
-    button.style.color = "#ffffffcc"; // Consistent text color
+    button.style.color = Styles.Color.WHITE; // Consistent text color
     button.style.backgroundColor = backgroundColor;
-    button.innerHTML = isHeader
-      ? `${icon(iconType).html[0]} ${text}`
-      : icon(iconType).html[0];
+    button.innerHTML = `${icon(iconType).html}${isHeader ? " " + text : ""}`;
   }
 }

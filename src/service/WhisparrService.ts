@@ -44,10 +44,10 @@ export default class WhisparrService {
   private static async request(
     config: Config,
     endpoint: string,
-    method: string = "GET",
+    method: "GET" | "POST" | "HEAD" = "GET",
     body?: any,
     additionalHeaders = {},
-  ): Promise<Response> {
+  ): Promise<Tampermonkey.Response<any>> {
     const uri = WhisparrService.buildApiUrl(config, endpoint);
     const headers = WhisparrService.getDefaultHeaders(
       config,
@@ -59,16 +59,23 @@ export default class WhisparrService {
       headers,
     };
 
+    const gmDetails: Tampermonkey.Request<any> = {
+      url: uri,
+      headers: headers,
+      method: method,
+      responseType: "json",
+    };
+
     if (body) {
       options.body = JSON.stringify(body); // Convert body to JSON for POST requests
     }
 
     try {
-      const response = await fetch(uri, options);
-      if (!response.ok) {
-        throw new Error(`Error ${response.status}: ${response.statusText}`);
+      const tmResponse = await GM.xmlHttpRequest(gmDetails);
+      if (tmResponse.status != 200) {
+        throw new Error(`Error ${tmResponse.status}: ${tmResponse.statusText}`);
       }
-      return response;
+      return tmResponse;
     } catch (error) {
       console.error("Fetch error: ", error);
       throw error;
@@ -79,8 +86,8 @@ export default class WhisparrService {
    * Performs a health check on the Whisparr instance by sending a request to the health endpoint.
    *
    * @param {Config} config - The configuration object containing API details.
-   * @returns {Promise<Response>} - The response from the Whisparr API, indicating the health status of the instance.
-   */ static healthCheck(config: Config): Promise<Response> {
+   * @returns {Promise<Tampermonkey.Response<any>>} - The response from the Whisparr API, indicating the health status of the instance.
+   */ static healthCheck(config: Config): Promise<Tampermonkey.Response<any>> {
     return WhisparrService.request(config, "health");
   }
 
@@ -89,11 +96,11 @@ export default class WhisparrService {
    *
    * @param {Config} config - The configuration object containing API details.
    * @param {string} sceneID - The unique Stash ID of the scene to fetch.
-   * @returns {Promise<Response>} - A promise that resolves with the response from the Whisparr API containing scene details.
+   * @returns {Promise<Tampermonkey.Response<any>>} - A promise that resolves with the response from the Whisparr API containing scene details.
    */ static getSceneByStashId(
     config: Config,
     sceneID: string,
-  ): Promise<Response> {
+  ): Promise<Tampermonkey.Response<any>> {
     const endpoint = `movie?stashId=${encodeURIComponent(sceneID)}`;
     return WhisparrService.request(config, endpoint);
   }
@@ -103,9 +110,12 @@ export default class WhisparrService {
    *
    * @param {Config} config - The configuration object containing necessary API details.
    * @param {string} sceneID - The unique identifier of the scene to search for.
-   * @returns {Promise<Response>} - A promise that resolves with the response from the Whisparr API.
+   * @returns {Promise<Tampermonkey.Response<any>>} - A promise that resolves with the response from the Whisparr API.
    */
-  static searchScene(config: Config, sceneID: string): Promise<Response> {
+  static searchScene(
+    config: Config,
+    sceneID: string,
+  ): Promise<Tampermonkey.Response<any>> {
     const endpoint = `lookup/scene?term=stash:${encodeURIComponent(sceneID)}`;
     return WhisparrService.request(config, endpoint);
   }
@@ -115,9 +125,12 @@ export default class WhisparrService {
    *
    * @param {Config} config - The configuration object containing API details.
    * @param {any} body - The payload to send in the request body.
-   * @returns {Promise<Response>} - The response from the Whisparr API.
+   * @returns {Promise<Tampermonkey.Response<any>>} - The response from the Whisparr API.
    */
-  static addScene(config: Config, body: any): Promise<Response> {
+  static addScene(
+    config: Config,
+    body: any,
+  ): Promise<Tampermonkey.Response<any>> {
     const endpoint = "movie";
     return WhisparrService.request(config, endpoint, "POST", body, {
       "Content-Type": "application/json",
@@ -143,10 +156,10 @@ export default class WhisparrService {
   ): Promise<SceneStatus> {
     try {
       const searchResponse = await WhisparrService.searchScene(config, sceneID);
-      if (!searchResponse.ok) {
+      if (searchResponse.status != 200) {
         throw new Error(`Failed to search scene: ${searchResponse.statusText}`);
       }
-      const searchData = await searchResponse.json();
+      const searchData = await searchResponse.response;
       if (searchData?.length > 0) {
         let sceneData = searchData[0];
         let payload = new ScenePayloadBuilder()
@@ -162,8 +175,8 @@ export default class WhisparrService {
           config,
           payload,
         );
-        if (!addScenePostResponse.ok) {
-          const postData = await addScenePostResponse.json();
+        if (addScenePostResponse.status != 200) {
+          const postData = await addScenePostResponse.response;
           throw new Error(postData?.[0]?.errorMessage || "Error occurred.");
         }
         return SceneStatus.ADDED;
@@ -190,7 +203,7 @@ export default class WhisparrService {
   ): Promise<SceneStatus> {
     try {
       const response = await WhisparrService.getSceneByStashId(config, sceneID);
-      const data = await response.json();
+      const data = await response.response;
 
       if (data?.length > 0) {
         return data[0].hasFile ? SceneStatus.DOWNLOADED : SceneStatus.EXISTS;
@@ -216,7 +229,7 @@ export default class WhisparrService {
         "Content-Type": "application/json",
       },
     )
-      .then((response) => response.json())
+      .then((response) => response.response)
       .then((json) => {
         return json as Whisparr.QualityProfile[];
       });
@@ -234,7 +247,7 @@ export default class WhisparrService {
         "Content-Type": "application/json",
       },
     )
-      .then((response) => response.json())
+      .then((response) => response.response)
       .then((json) => {
         return json as Whisparr.RootFolder[];
       });
