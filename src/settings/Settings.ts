@@ -156,15 +156,20 @@ export class Settings {
 
   public openSettingsModal(event: MouseEvent | KeyboardEvent) {
     const modal = document.getElementById("stasharr-settingsModal");
+
     // ensure options of select elements are updated appropriately
-    const schemeOption = document.querySelector(
-      `#stasharr-scheme [value='${JSON.parse(localStorage.getItem("stasharr-config")!).scheme}']`,
-    );
-    const searchOnAddOption = document.querySelector(
-      `#stasharr-searchForNewMovie [value='${JSON.parse(localStorage.getItem("stasharr-config")!).searchForNewMovie}']`,
-    );
-    schemeOption?.setAttribute("selected", "true");
-    searchOnAddOption?.setAttribute("selected", "true");
+    const config = localStorage.getItem("stasharr-config");
+    if (config) {
+      const schemeOption = document.querySelector(
+        `#stasharr-scheme [value='${JSON.parse(localStorage.getItem("stasharr-config")!).scheme}']`,
+      );
+      const searchOnAddOption = document.querySelector(
+        `#stasharr-searchForNewMovie [value='${JSON.parse(localStorage.getItem("stasharr-config")!).searchForNewMovie}']`,
+      );
+      schemeOption?.setAttribute("selected", "true");
+      searchOnAddOption?.setAttribute("selected", "true");
+    }
+
     if (modal) {
       const m = new Modal(modal);
       m.show();
