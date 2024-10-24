@@ -32,7 +32,12 @@ Before using the script, you need to configure a few parameters:
 
 ![image](https://github.com/user-attachments/assets/c450f902-4d62-400c-a31e-062fb28badab)
 
-3. **Save your changes**. If your configuration is valid (i.e. your whisparr instance can be reached) your settings will be saved.
+3. **Save your changes**. If your configuration is valid (i.e. your whisparr instance can be reached) your settings will be saved and you will be prompted to allow access to a cross-origin resource.
+ - This is so the userscript can interact with your Whisparr instance.
+ - Ensure you click **Always allow domain**
+
+![image](https://github.com/user-attachments/assets/9804d74c-9c57-4046-85ec-6f6b182cf397)
+
 
 ## Usage
 
