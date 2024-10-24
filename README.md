@@ -1,6 +1,8 @@
 # stasharr
 
-![GitHub Release](https://img.shields.io/github/v/release/enymawse/stasharr)
+![GitHub Release](https://img.shields.io/github/v/release/enymawse/stasharr?style=for-the-badge)
+<br/>
+![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/enymawse/stasharr/release.yml?style=for-the-badge)
 
 This Tampermonkey userscript allows you to add a StashDB scene to your local Whisparr instance with a single click. It automatically checks if the scene is already in Whisparr and displays appropriate messages.
 
@@ -29,7 +31,6 @@ Before using the script, you need to configure a few parameters:
 3. **Click Settings** under the stasharr script and fill in your details:
 
 ![image](https://github.com/user-attachments/assets/c450f902-4d62-400c-a31e-062fb28badab)
-
 
 3. **Save your changes**. If your configuration is valid (i.e. your whisparr instance can be reached) your settings will be saved.
 
