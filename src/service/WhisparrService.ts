@@ -54,11 +54,6 @@ export default class WhisparrService {
       additionalHeaders,
     );
 
-    const options: RequestInit = {
-      method,
-      headers,
-    };
-
     const gmDetails: Tampermonkey.Request<any> = {
       url: uri,
       headers: headers,
@@ -67,7 +62,7 @@ export default class WhisparrService {
     };
 
     if (body) {
-      options.body = JSON.stringify(body); // Convert body to JSON for POST requests
+      gmDetails.data = JSON.stringify(body); // Convert body to JSON for POST requests
     }
 
     try {
