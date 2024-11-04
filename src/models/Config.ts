@@ -25,19 +25,19 @@ export class Config {
     protocol: boolean;
     domain: string;
     whisparrApiKey: string;
-    qualityProfile: number;
-    rootFolderPath: string;
-    rootFolderPathId: number;
-    searchForNewMovie: boolean;
+    qualityProfile?: number;
+    rootFolderPath?: string;
+    rootFolderPathId?: number;
+    searchForNewMovie?: boolean;
   }) {
     if (data) {
       this.protocol = data.protocol;
       this.domain = data.domain;
       this.whisparrApiKey = data.whisparrApiKey;
-      this.qualityProfile = data.qualityProfile;
-      this.rootFolderPath = data.rootFolderPath;
-      this.rootFolderPathId = data.rootFolderPathId;
-      this.searchForNewMovie = data.searchForNewMovie;
+      this.qualityProfile = data.qualityProfile || 1;
+      this.rootFolderPath = data.rootFolderPath || "";
+      this.rootFolderPathId = data.rootFolderPathId || 1;
+      this.searchForNewMovie = data.searchForNewMovie || true;
     }
   }
 

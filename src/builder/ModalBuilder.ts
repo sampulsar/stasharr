@@ -5,6 +5,9 @@ import { SettingKeys } from "../enums/SettingKeys";
 import WhisparrService from "../service/WhisparrService";
 import { Config } from "../models/Config";
 import { YesNo } from "../enums/YesNo";
+import { Settings } from "../settings/Settings";
+import { parseInt } from "lodash";
+import { dom } from "@fortawesome/fontawesome-svg-core";
 
 export class ModalBuilder {
   private modalElement: HTMLElement;
@@ -52,22 +55,24 @@ export class ModalBuilder {
     return this;
   }
 
-  addProtocol(proto: boolean): ModalBuilder {
+  addProtocol(config: Config): ModalBuilder {
     const bodyDiv = this.getOrCreateBody();
 
     const inputSwitch = BsElement.inputSwitch({
       id: `stasharr-${SettingKeys.Proto}`,
       label: "HTTPS",
-      checked: proto,
+      checked: config.protocol,
       tooltip:
         "Enable if you have configured Whisparr with valid certs, otherwise leave unchecked.",
     });
+
+    this.addSelectRefreshers("change", inputSwitch);
 
     bodyDiv.appendChild(inputSwitch);
     return this;
   }
 
-  addDomain(domain: string): ModalBuilder {
+  addDomain(config: Config): ModalBuilder {
     const bodyDiv = this.getOrCreateBody();
     const floatingInputElement = BsElement.floatingInput({
       id: `stasharr-${SettingKeys.Domain}`,
@@ -75,25 +80,79 @@ export class ModalBuilder {
       label: "Whisparr URL or IP address with port number",
       tooltip:
         "ex. localhost:6969 or whisparr.customdomain.home or whisparr.lan:123",
-      defaultValue: domain,
+      defaultValue: config.domain,
     });
+
+    this.addSelectRefreshers("focusout", floatingInputElement);
 
     bodyDiv.appendChild(floatingInputElement);
     return this;
   }
 
-  addApiKey(apiKey: string): ModalBuilder {
+  addApiKey(config: Config): ModalBuilder {
     const bodyDiv = this.getOrCreateBody();
     const floatingInputElement = BsElement.floatingInput({
       id: `stasharr-${SettingKeys.ApiKey}`,
       name: SettingKeys.ApiKey,
       label: "Whisparr API Key",
       tooltip: "Found in Whisparr under Settings -> General",
-      defaultValue: apiKey,
+      defaultValue: config.whisparrApiKey,
       type: "password",
     });
+
+    this.addSelectRefreshers("focusout", floatingInputElement);
+
     bodyDiv.appendChild(floatingInputElement);
     return this;
+  }
+
+  private addSelectRefreshers(type: string, element: HTMLElement) {
+    element.addEventListener(type, this.refreshQualityProfiles, {
+      passive: true,
+    });
+    element.addEventListener(type, this.refreshRootFolderPaths, {
+      passive: true,
+    });
+  }
+
+  refreshQualityProfiles(): any {
+    const selectId = `stasharr-${SettingKeys.QualityProfile}`;
+    const selectElement = document.getElementById(selectId);
+    const rawUserSettings = Settings.domConfigValues();
+    selectElement?.replaceWith(
+      BsElement.dynamicSelectWithDefault(
+        selectId,
+        parseInt(Settings.getSelectValue(SettingKeys.QualityProfile)),
+        WhisparrService.getQualityProfilesForSelectMenu,
+        WhisparrService.healthCheck,
+        new Config({
+          protocol: rawUserSettings.protocol,
+          whisparrApiKey: rawUserSettings.whisparrApiKey,
+          domain: rawUserSettings.domain,
+        }),
+        "Desired Quality Profile for adding scenes.",
+      ),
+    );
+  }
+
+  refreshRootFolderPaths(): any {
+    const selectId = `stasharr-${SettingKeys.RootFolderPath}`;
+    const selectElement = document.getElementById(selectId);
+    const rawUserSettings = Settings.domConfigValues();
+    selectElement?.replaceWith(
+      BsElement.dynamicSelectWithDefault(
+        selectId,
+        parseInt(Settings.getSelectValue(SettingKeys.QualityProfile)),
+        WhisparrService.getRootFolderPathsForSelectMenu,
+        WhisparrService.healthCheck,
+        new Config({
+          protocol: rawUserSettings.protocol,
+          whisparrApiKey: rawUserSettings.whisparrApiKey,
+          domain: rawUserSettings.domain,
+        }),
+        "Desired Root Folder Path for adding scenes.",
+      ),
+    );
   }
 
   addQualityProfile(config: Config): ModalBuilder {
@@ -130,7 +189,7 @@ export class ModalBuilder {
       WhisparrService.getRootFolderPathsForSelectMenu,
       WhisparrService.healthCheck,
       config,
-      "Root Folder Path to use when adding scenes.",
+      "Desired Root Folder Path for adding scenes.",
     );
 
     inputGroup.appendChild(selectElement);

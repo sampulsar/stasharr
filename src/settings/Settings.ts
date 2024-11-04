@@ -23,12 +23,20 @@ export class Settings {
     this._configSchema = ConfigSchema;
   }
 
+  static domConfigValues() {
+    return {
+      protocol: Settings.getInputValue(SettingKeys.Proto) === "checked",
+      domain: Settings.getInputValue(SettingKeys.Domain),
+      whisparrApiKey: Settings.getInputValue(SettingKeys.ApiKey),
+    };
+  }
+
   private buildSettingsModal(): HTMLElement {
     const modalBuilder = new ModalBuilder("stasharr-settingsModal")
       .setModalTitle("stasharr Settings")
-      .addProtocol(this._config.protocol)
-      .addDomain(this._config.domain)
-      .addApiKey(this._config.whisparrApiKey)
+      .addProtocol(this._config)
+      .addDomain(this._config)
+      .addApiKey(this._config)
       .addQualityProfile(this._config)
       .addRootFolderPaths(this.config)
       .addSearchOnAdd(this.config)
@@ -109,7 +117,7 @@ export class Settings {
     ToastService.showToast("Settings Saved Successfully", true);
   }
 
-  private static getSelectValue(id: string): string {
+  static getSelectValue(id: string): string {
     let select;
     switch (id) {
       case SettingKeys.RootFolderPathId:
@@ -133,7 +141,7 @@ export class Settings {
     }
   }
 
-  private static getInputValue(id: string): string {
+  static getInputValue(id: string): string {
     if (id === SettingKeys.RootFolderPathId) {
       return (
         document.getElementById(

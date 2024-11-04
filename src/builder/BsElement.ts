@@ -144,14 +144,14 @@ export class BsElement {
     defaultOption.textContent = "Loading options...";
     select.appendChild(defaultOption);
 
-    try {
-      isValidSettings(config).then((isValid) => {
+    isValidSettings(config)
+      .then((isValid) => {
         if (isValid) {
           select.disabled = false;
           defaultOption.textContent = "Choose an option";
 
-          try {
-            fetchOptions(config).then((options) => {
+          fetchOptions(config)
+            .then((options) => {
               options.forEach((option) => {
                 const optionElement = document.createElement("option");
                 optionElement.value = option.id + "";
@@ -162,19 +162,19 @@ export class BsElement {
                 }
                 select.appendChild(optionElement);
               });
+            })
+            .catch((reason) => {
+              console.error("Failed to load options:", reason);
+              defaultOption.textContent = "Error loading options";
             });
-          } catch (error) {
-            console.error("Failed to load options:", error);
-            defaultOption.textContent = "Error loading options";
-          }
         } else {
           defaultOption.textContent = "Invalid settings";
         }
+      })
+      .catch((reason) => {
+        console.log("Settings invalid:", reason);
+        defaultOption.textContent = "Invalid settings";
       });
-    } catch (error) {
-      console.log("Settings invalid:", error);
-      defaultOption.textContent = "Invalid settings";
-    }
 
     return select;
   }
