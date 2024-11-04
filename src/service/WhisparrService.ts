@@ -2,17 +2,18 @@ import { SceneStatus } from "../enums/SceneStatus";
 import { Config } from "../models/Config";
 import { ScenePayloadBuilder } from "../builder/ScenePayloadBuilder";
 import { Whisparr } from "../types/types";
+import ToastService from "./ToastService";
 
 export default class WhisparrService {
   /**
    * Constructs the full API URL for a given endpoint using the configuration.
    *
-   * @param {Config} config - The configuration object containing domain, scheme, and API details.
+   * @param {Config} config - The configuration object containing domain, protocol, and API details.
    * @param {string} endpoint - The specific API endpoint.
    * @returns {string} - The full API URL.
    */
   private static buildApiUrl(config: Config, endpoint: string): string {
-    return `${config.scheme}://${config.domain}/api/v3/${endpoint}`;
+    return `${config.whisparrApiUrl()}${endpoint}`;
   }
 
   /**
@@ -81,9 +82,11 @@ export default class WhisparrService {
    * Performs a health check on the Whisparr instance by sending a request to the health endpoint.
    *
    * @param {Config} config - The configuration object containing API details.
-   * @returns {Promise<Tampermonkey.Response<any>>} - The response from the Whisparr API, indicating the health status of the instance.
-   */ static healthCheck(config: Config): Promise<Tampermonkey.Response<any>> {
-    return WhisparrService.request(config, "health");
+   * @returns {Promise<boolean>} - The response from the Whisparr API, indicating the health status of the instance.
+   */ static healthCheck(config: Config): Promise<boolean> {
+    return WhisparrService.request(config, "health").then((response) => {
+      return response.status === 200;
+    });
   }
 
   /**
@@ -229,6 +232,42 @@ export default class WhisparrService {
         return json as Whisparr.QualityProfile[];
       });
     return response;
+  }
+
+  static async getQualityProfilesForSelectMenu(
+    config: Config,
+  ): Promise<{ id: number; name: string }[]> {
+    let options: { id: number; name: string }[] = [];
+    await WhisparrService.getQualityProfiles(config).then(
+      (response: Whisparr.QualityProfile[]) => {
+        response.forEach((qualityProfile) => {
+          options.push({
+            id: qualityProfile.id,
+            name: qualityProfile.name,
+          });
+        });
+      },
+    );
+    return options;
+  }
+
+  static async getRootFolderPathsForSelectMenu(
+    config: Config,
+  ): Promise<{ id: number; name: string }[]> {
+    let options: { id: number; name: string }[] = [];
+
+    await WhisparrService.getRootFolders(config).then(
+      (response: Whisparr.RootFolder[]) => {
+        response.forEach((rootFolder) => {
+          options.push({
+            id: rootFolder.id,
+            name: rootFolder.path,
+          });
+        });
+      },
+    );
+
+    return options;
   }
 
   static async getRootFolders(config: Config): Promise<Whisparr.RootFolder[]> {

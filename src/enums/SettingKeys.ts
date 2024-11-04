@@ -1,8 +1,9 @@
 export enum SettingKeys {
-  Scheme = "scheme",
+  Proto = "protocol",
   Domain = "domain",
   ApiKey = "whisparrApiKey",
   QualityProfile = "qualityProfile",
   RootFolderPath = "rootFolderPath",
+  RootFolderPathId = "rootFolderPathId",
   SearchForNewMovie = "searchForNewMovie",
 }

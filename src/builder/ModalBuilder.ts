@@ -1,4 +1,10 @@
-import { Tooltip } from "bootstrap";
+import { Modal, Tooltip } from "bootstrap";
+import { Styles } from "../enums/Styles";
+import { BsElement } from "./BsElement";
+import { SettingKeys } from "../enums/SettingKeys";
+import WhisparrService from "../service/WhisparrService";
+import { Config } from "../models/Config";
+import { YesNo } from "../enums/YesNo";
 
 export class ModalBuilder {
   private modalElement: HTMLElement;
@@ -46,100 +52,308 @@ export class ModalBuilder {
     return this;
   }
 
+  addProtocol(proto: boolean): ModalBuilder {
+    const bodyDiv = this.getOrCreateBody();
+
+    const inputSwitch = BsElement.inputSwitch({
+      id: `stasharr-${SettingKeys.Proto}`,
+      label: "HTTPS",
+      checked: proto,
+      tooltip:
+        "Enable if you have configured Whisparr with valid certs, otherwise leave unchecked.",
+    });
+
+    bodyDiv.appendChild(inputSwitch);
+    return this;
+  }
+
+  addDomain(domain: string): ModalBuilder {
+    const bodyDiv = this.getOrCreateBody();
+    const floatingInputElement = BsElement.floatingInput({
+      id: `stasharr-${SettingKeys.Domain}`,
+      name: SettingKeys.Domain,
+      label: "Whisparr URL or IP address with port number",
+      tooltip:
+        "ex. localhost:6969 or whisparr.customdomain.home or whisparr.lan:123",
+      defaultValue: domain,
+    });
+
+    bodyDiv.appendChild(floatingInputElement);
+    return this;
+  }
+
+  addApiKey(apiKey: string): ModalBuilder {
+    const bodyDiv = this.getOrCreateBody();
+    const floatingInputElement = BsElement.floatingInput({
+      id: `stasharr-${SettingKeys.ApiKey}`,
+      name: SettingKeys.ApiKey,
+      label: "Whisparr API Key",
+      tooltip: "Found in Whisparr under Settings -> General",
+      defaultValue: apiKey,
+      type: "password",
+    });
+    bodyDiv.appendChild(floatingInputElement);
+    return this;
+  }
+
+  addQualityProfile(config: Config): ModalBuilder {
+    const selectId = `stasharr-${SettingKeys.QualityProfile}`;
+
+    const bodyDiv = this.getOrCreateBody();
+
+    const inputGroup = this.inputGroup(selectId, "Quality Profile");
+
+    const selectElement = BsElement.dynamicSelectWithDefault(
+      selectId,
+      config.qualityProfile,
+      WhisparrService.getQualityProfilesForSelectMenu,
+      WhisparrService.healthCheck,
+      config,
+      "Desired Quality Profile for adding scenes.",
+    );
+
+    inputGroup.appendChild(selectElement);
+    bodyDiv.appendChild(inputGroup);
+    return this;
+  }
+
+  addRootFolderPaths(config: Config): ModalBuilder {
+    const selectId = `stasharr-${SettingKeys.RootFolderPath}`;
+
+    const bodyDiv = this.getOrCreateBody();
+
+    const inputGroup = this.inputGroup(selectId, "Root Folder Path");
+
+    const selectElement = BsElement.dynamicSelectWithDefault(
+      selectId,
+      config.rootFolderPathId,
+      WhisparrService.getRootFolderPathsForSelectMenu,
+      WhisparrService.healthCheck,
+      config,
+      "Root Folder Path to use when adding scenes.",
+    );
+
+    inputGroup.appendChild(selectElement);
+    bodyDiv.appendChild(inputGroup);
+    return this;
+  }
+
+  addSearchOnAdd(config: Config): ModalBuilder {
+    const selectId = `stasharr-${SettingKeys.SearchForNewMovie}`;
+
+    const bodyDiv = this.getOrCreateBody();
+
+    const inputGroup = this.inputGroup(selectId, "Search On Add");
+
+    const selectElement = BsElement.staticSelect(
+      selectId,
+      config.searchForNewMovie ? YesNo.Yes : YesNo.No,
+      [YesNo.Yes, YesNo.No],
+    );
+
+    inputGroup.appendChild(selectElement);
+    bodyDiv.appendChild(inputGroup);
+    return this;
+  }
+
+  private inputGroup(selectId: string, innerText: string) {
+    const inputGroup = document.createElement("div");
+    inputGroup.classList.add("input-group", "mb-3");
+    const inputGroupLabel = document.createElement("label");
+    inputGroupLabel.innerText = innerText;
+    inputGroupLabel.classList.add("input-group-text");
+    inputGroupLabel.setAttribute("for", selectId);
+    inputGroup.appendChild(inputGroupLabel);
+    return inputGroup;
+  }
+
   addInputField(
     label: string,
     name: string,
-    type: "text" | "number" | "email" | "password" | "select",
-    options?: string[], // For dropdown inputs
+    type:
+      | "text"
+      | "number"
+      | "email"
+      | "password"
+      | "select"
+      | "dropdown-input",
+    options?: string[], // For dropdown or select types
     placeholder?: string,
     defaultValue?: string,
-    tooltip?: string, // Tooltip parameter
+    tooltip?: string,
+    handler?: { name: string; func: (this: HTMLElement, e: Event) => any },
+    style?: "floating" | "input-group",
   ): ModalBuilder {
     const bodyDiv = this.getOrCreateBody();
+    let formGroup;
 
-    const formGroup = document.createElement("div");
-    formGroup.classList.add("form-group");
-
-    // Create label with tooltip if provided
-    const inputLabel = document.createElement("label");
-    inputLabel.innerText = label;
-    inputLabel.setAttribute("for", `stasharr-${name}`);
-
-    if (tooltip) {
-      inputLabel.setAttribute("data-bs-toggle", "tooltip");
-      inputLabel.setAttribute("title", tooltip);
+    if (style === "floating") {
+      formGroup = this.createFormFloatingGroup(label, name, tooltip);
+    } else if (style === "input-group") {
+      formGroup = this.createInputGroup(label, name, tooltip);
+    } else {
+      formGroup = this.createFormGroup(label, name, tooltip);
     }
-
-    formGroup.appendChild(inputLabel);
 
     let inputElement: HTMLElement;
     if (type === "select" && options) {
-      inputElement = document.createElement("select");
-      inputElement.classList.add("form-control");
-      inputElement.id = `stasharr-${name}`;
-      (inputElement as HTMLInputElement).setAttribute(
-        "autocomplete",
-        `stasharr-${name}`,
-      );
-      inputElement.setAttribute("name", name);
-
-      options.forEach((option) => {
-        const optionElement = document.createElement("option");
-        optionElement.value = option;
-        optionElement.innerText = option;
-        inputElement.appendChild(optionElement);
-      });
+      inputElement = this.createSelectElement(name, options);
     } else {
-      inputElement = document.createElement("input");
-      (inputElement as HTMLInputElement).type = type;
-      (inputElement as HTMLInputElement).classList.add("form-control");
-      (inputElement as HTMLInputElement).id = `stasharr-${name}`;
-      (inputElement as HTMLInputElement).name = name;
-      if (placeholder) {
-        (inputElement as HTMLInputElement).placeholder = placeholder;
-      }
-      if (defaultValue) {
-        (inputElement as HTMLInputElement).value = defaultValue;
-      }
+      inputElement = this.createInputElement(
+        type,
+        name,
+        placeholder,
+        defaultValue,
+      );
     }
 
-    // Add tooltip to the input element as well, if specified
     if (tooltip) {
-      inputElement.setAttribute("data-bs-toggle", "tooltip");
-      inputElement.setAttribute("title", tooltip);
+      this.addTooltip(inputElement, tooltip);
     }
 
     formGroup.appendChild(inputElement);
     bodyDiv.appendChild(formGroup);
 
-    // Initialize Bootstrap tooltips for new elements
-    this.initializeTooltips(inputLabel);
-    if (inputElement) {
-      this.initializeTooltips(inputElement);
-    }
+    this.initializeTooltips(formGroup);
 
     return this;
+  }
+
+  private createFormFloatingGroup(
+    label: string,
+    name: string,
+    tooltip?: string,
+  ): HTMLElement {
+    const formFloat = document.createElement("div");
+    formFloat.classList.add("form-floating", "mb-3");
+
+    const inputFloat = document.createElement("input");
+    inputFloat.type = "text";
+    inputFloat.classList.add("form-control");
+    inputFloat.id = `stasharr-${name}`;
+    inputFloat.name = name;
+    inputFloat.placeholder = "";
+
+    const labelFor = document.createElement("label");
+    labelFor.setAttribute("for", `stasharr-${name}`);
+    labelFor.innerHTML = label;
+    labelFor.style.color = Styles.Color.GRAY;
+
+    if (tooltip) {
+      this.addTooltip(inputFloat, tooltip);
+    }
+
+    formFloat.appendChild(inputFloat);
+    formFloat.appendChild(labelFor);
+
+    return formFloat;
+  }
+
+  private createFormGroup(
+    label: string,
+    name: string,
+    tooltip?: string,
+  ): HTMLElement {
+    const formGroup = document.createElement("div");
+    formGroup.classList.add("form-group", "mb-3");
+
+    const inputLabel = document.createElement("label");
+    inputLabel.innerText = label;
+    inputLabel.setAttribute("for", `stasharr-${name}`);
+
+    if (tooltip) {
+      this.addTooltip(inputLabel, tooltip);
+    }
+
+    formGroup.appendChild(inputLabel);
+    return formGroup;
+  }
+
+  private createInputGroup(
+    label: string,
+    name: string,
+    tooltip?: string,
+  ): HTMLElement {
+    const inputGroup = document.createElement("div");
+    inputGroup.classList.add("input-group", "mb-3");
+
+    const inputLabel = document.createElement("span");
+    inputLabel.classList.add("input-group-text");
+    inputLabel.innerText = label;
+
+    if (tooltip) {
+      this.addTooltip(inputLabel, tooltip);
+    }
+
+    inputGroup.appendChild(inputLabel);
+    return inputGroup;
+  }
+
+  private createSelectElement(
+    name: string,
+    options: string[],
+  ): HTMLSelectElement {
+    const selectElement = document.createElement("select");
+    selectElement.classList.add("form-control");
+    selectElement.id = `stasharr-${name}`;
+    selectElement.name = name;
+
+    options.forEach((option) => {
+      const optionElement = document.createElement("option");
+      optionElement.value = option;
+      optionElement.innerText = option;
+      selectElement.appendChild(optionElement);
+    });
+
+    return selectElement;
+  }
+
+  private createInputElement(
+    type: string,
+    name: string,
+    placeholder?: string,
+    defaultValue?: string,
+  ): HTMLInputElement {
+    const inputElement = document.createElement("input");
+    inputElement.type = type;
+    inputElement.classList.add("form-control");
+    inputElement.id = `stasharr-${name}`;
+    inputElement.name = name;
+
+    if (placeholder) inputElement.placeholder = placeholder;
+    if (defaultValue) inputElement.value = defaultValue;
+
+    return inputElement;
+  }
+
+  private addTooltip(element: HTMLElement, tooltip: string): void {
+    element.setAttribute("data-bs-toggle", "tooltip");
+    element.setAttribute("title", tooltip);
   }
 
   addCloseButton(
     label: string,
     onClick: (this: HTMLButtonElement, ev: MouseEvent) => any,
   ): ModalBuilder {
-    const footerDiv = this.getOrCreateFooter();
-    const closeButton = this.createButton(label, "btn-secondary", onClick);
-    closeButton.setAttribute("data-bs-dismiss", "modal");
-    footerDiv.appendChild(closeButton);
-    return this;
+    return this.addFooterButton(label, "btn-secondary", onClick);
   }
 
   addSaveButton(
     label: string,
     onClick: (this: HTMLButtonElement, ev: MouseEvent) => any,
   ): ModalBuilder {
+    return this.addFooterButton(label, "btn-primary", onClick);
+  }
+
+  addFooterButton(
+    label: string,
+    styleClass: string,
+    onClick: (this: HTMLButtonElement, ev: MouseEvent) => any,
+  ): ModalBuilder {
     const footerDiv = this.getOrCreateFooter();
-    const saveButton = this.createButton(label, "btn-primary", onClick);
-    saveButton.setAttribute("data-bs-dismiss", "modal");
-    footerDiv.appendChild(saveButton);
+    const button = this.createButton(label, styleClass, onClick);
+    button.setAttribute("data-bs-dismiss", "modal");
+    footerDiv.appendChild(button);
     return this;
   }
 
@@ -147,14 +361,34 @@ export class ModalBuilder {
     return this.modalElement;
   }
 
+  private createButton(
+    label: string,
+    className: string,
+    onClick: (this: HTMLButtonElement, ev: MouseEvent) => any,
+  ): HTMLButtonElement {
+    const button = BsElement.button({
+      classList: ["btn", className],
+      innerText: label,
+      eventListener: {
+        type: "click",
+        listener: onClick,
+      },
+    });
+    return button;
+  }
+
+  private initializeTooltips(element: HTMLElement): void {
+    const tooltipElements = element.querySelectorAll(
+      "[data-bs-toggle='tooltip']",
+    );
+    tooltipElements.forEach((tooltipElement) => new Tooltip(tooltipElement));
+  }
+
   private getOrCreateBody(): HTMLElement {
     let bodyDiv = this.modalContent.querySelector<HTMLElement>(".modal-body");
     if (!bodyDiv) {
-      let form = document.createElement("form");
-      bodyDiv = document.createElement("div");
-      bodyDiv.classList.add("modal-body");
-      form.appendChild(bodyDiv);
-      this.modalContent.appendChild(form);
+      bodyDiv = BsElement.modalBody();
+      this.modalContent.appendChild(bodyDiv);
     }
     return bodyDiv;
   }
@@ -163,30 +397,9 @@ export class ModalBuilder {
     let footerDiv =
       this.modalContent.querySelector<HTMLElement>(".modal-footer");
     if (!footerDiv) {
-      footerDiv = document.createElement("div");
-      footerDiv.classList.add("modal-footer");
+      footerDiv = BsElement.modalFooter();
       this.modalContent.appendChild(footerDiv);
     }
     return footerDiv;
-  }
-
-  private createButton(
-    label: string,
-    btnClass: string,
-    onClick: (this: HTMLButtonElement, ev: MouseEvent) => any,
-  ): HTMLButtonElement {
-    const button = document.createElement("button");
-    button.classList.add("btn", btnClass);
-    button.innerText = label;
-    button.addEventListener("click", onClick);
-    return button;
-  }
-
-  private initializeTooltips(element: HTMLElement): void {
-    // Initialize Bootstrap tooltips
-    const tooltipTriggerList = [].slice.call([element]);
-    tooltipTriggerList.map(function (tooltipTriggerEl) {
-      return new Tooltip(tooltipTriggerEl);
-    });
   }
 }

@@ -1,26 +1,48 @@
 import { z } from "zod";
 
 export const ConfigSchema = z.object({
-  scheme: z.enum(["http", "https"]),
+  protocol: z.boolean(),
   domain: z.string().min(1, "Domain is required"),
   whisparrApiKey: z.string().min(1, "API Key is required"),
   qualityProfile: z
     .number()
     .min(0, "Quality profile must be a non-negative number"),
   rootFolderPath: z.string().min(1, "Root folder path is required"),
+  rootFolderPathId: z.number().min(0),
   searchForNewMovie: z.boolean(),
 });
 
 export class Config {
-  scheme: string = "https";
+  protocol: boolean = false;
   domain: string = "localhost:6969";
   whisparrApiKey: string = "";
   qualityProfile: number = 1;
   rootFolderPath: string = "";
+  rootFolderPathId: number = 1;
   searchForNewMovie: boolean = true;
 
-  get whisparrApiUrl(): string {
-    return `${this.scheme}://${this.domain}/api/v3/`;
+  constructor(data?: {
+    protocol: boolean;
+    domain: string;
+    whisparrApiKey: string;
+    qualityProfile: number;
+    rootFolderPath: string;
+    rootFolderPathId: number;
+    searchForNewMovie: boolean;
+  }) {
+    if (data) {
+      this.protocol = data.protocol;
+      this.domain = data.domain;
+      this.whisparrApiKey = data.whisparrApiKey;
+      this.qualityProfile = data.qualityProfile;
+      this.rootFolderPath = data.rootFolderPath;
+      this.rootFolderPathId = data.rootFolderPathId;
+      this.searchForNewMovie = data.searchForNewMovie;
+    }
+  }
+
+  whisparrApiUrl(): string {
+    return `${this.protocol ? "https" : "http"}://${this.domain}/api/v3/`;
   }
 
   load() {

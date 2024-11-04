@@ -5,6 +5,7 @@ import { YesNo } from "../enums/YesNo";
 import { SettingKeys } from "../enums/SettingKeys";
 import WhisparrService from "../service/WhisparrService";
 import ToastService from "../service/ToastService";
+import { parseInt, upperFirst } from "lodash";
 
 export class Settings {
   private _modal: Modal;
@@ -25,60 +26,12 @@ export class Settings {
   private buildSettingsModal(): HTMLElement {
     const modalBuilder = new ModalBuilder("stasharr-settingsModal")
       .setModalTitle("stasharr Settings")
-      .addInputField(
-        "Scheme",
-        SettingKeys.Scheme,
-        "select",
-        ["https", "http"],
-        undefined,
-        this._config.scheme,
-        "http or https",
-      )
-      .addInputField(
-        "Domain",
-        SettingKeys.Domain,
-        "text",
-        undefined,
-        "Whisparr URL or IP address with port number",
-        this._config.domain,
-        "ex. localhost:6969 or whisparr.customdomain.home or whisparr.lan:123",
-      )
-      .addInputField(
-        "API Key",
-        SettingKeys.ApiKey,
-        "password",
-        undefined,
-        "Enter your Whisparr API Key",
-        this._config.whisparrApiKey,
-        "Found in Whisparr under Settings -> General",
-      )
-      .addInputField(
-        "Quality Profile",
-        SettingKeys.QualityProfile,
-        "text",
-        undefined,
-        "Name of your desired quality profile",
-        this._config.qualityProfile.toString(),
-        "Found in Whisparr under Settings -> Profiles",
-      )
-      .addInputField(
-        "Root Folder Path",
-        SettingKeys.RootFolderPath,
-        "text",
-        undefined,
-        "Root folder path to where you keep your media",
-        this._config.rootFolderPath,
-        "Found in Whisparr under Settings -> Media Management",
-      )
-      .addInputField(
-        "Search On Add",
-        SettingKeys.SearchForNewMovie,
-        "select",
-        [YesNo.Yes, YesNo.No],
-        undefined,
-        "Yes",
-        "Would you like Whipsarr to search for scenes after they are added?",
-      )
+      .addProtocol(this._config.protocol)
+      .addDomain(this._config.domain)
+      .addApiKey(this._config.whisparrApiKey)
+      .addQualityProfile(this._config)
+      .addRootFolderPaths(this.config)
+      .addSearchOnAdd(this.config)
       .addCloseButton("Close", this.closeModalHandler.bind(this))
       .addSaveButton("Save Changes", this.saveModalHandler.bind(this));
 
@@ -95,13 +48,17 @@ export class Settings {
     }
   }
 
-  private async validateSettings(config: Config): Promise<boolean> {
+  private async healthCheckWithUpdatedConfig(config: Config): Promise<boolean> {
     try {
-      const response = await WhisparrService.healthCheck(config);
-      return response.status == 200;
+      return await WhisparrService.healthCheck(config);
     } catch (error) {
-      ToastService.showToast("Validation failed", false);
-      console.log("Validation failed", error);
+      let message = "Health Check failed";
+      if (config.protocol) {
+        message +=
+          " likely due to HTTPS being enabled and not having valid SSL certs. Try again with HTTP.";
+      }
+      ToastService.showToast(message, false, 10000);
+      console.log(message, error);
     }
     return false;
   }
@@ -109,13 +66,16 @@ export class Settings {
   private async saveModalHandler() {
     // Create a config object from the input values
     const configData = {
-      scheme: Settings.getInputValue(SettingKeys.Scheme),
+      protocol: Settings.getInputValue(SettingKeys.Proto) === "checked",
       domain: Settings.getInputValue(SettingKeys.Domain),
       whisparrApiKey: Settings.getInputValue(SettingKeys.ApiKey),
-      qualityProfile: Number.parseInt(
-        Settings.getInputValue(SettingKeys.QualityProfile),
+      qualityProfile: parseInt(
+        Settings.getSelectValue(SettingKeys.QualityProfile),
       ),
-      rootFolderPath: Settings.getInputValue(SettingKeys.RootFolderPath),
+      rootFolderPath: Settings.getSelectValue(SettingKeys.RootFolderPath),
+      rootFolderPathId: parseInt(
+        Settings.getSelectValue(SettingKeys.RootFolderPathId),
+      ),
       searchForNewMovie:
         Settings.getInputValue(SettingKeys.SearchForNewMovie) === YesNo.Yes,
     };
@@ -125,11 +85,11 @@ export class Settings {
 
     if (
       !parsedConfig.success ||
-      !(await this.validateSettings(parsedConfig.data as Config))
+      !(await this.healthCheckWithUpdatedConfig(new Config(parsedConfig.data)))
     ) {
       // Show an error if validation fails
       ToastService.showToast(
-        "Invalid settings. Please review your inputs.",
+        "Failed to validate settings. Please review your inputs.",
         false,
       );
       console.error(parsedConfig.error);
@@ -149,9 +109,58 @@ export class Settings {
     ToastService.showToast("Settings Saved Successfully", true);
   }
 
+  private static getSelectValue(id: string): string {
+    let select;
+    switch (id) {
+      case SettingKeys.RootFolderPathId:
+        select = document.getElementById(
+          `stasharr-${SettingKeys.RootFolderPath}`,
+        ) as HTMLSelectElement;
+        return select.value;
+      case SettingKeys.RootFolderPath:
+        select = document.getElementById(
+          `stasharr-${SettingKeys.RootFolderPath}`,
+        ) as HTMLSelectElement;
+        return select.options[select.selectedIndex].text;
+      case SettingKeys.QualityProfile:
+        select = document.getElementById(
+          `stasharr-${SettingKeys.QualityProfile}`,
+        ) as HTMLSelectElement;
+        return select.value;
+      default:
+        console.warn("using the wrong key to get select values");
+        return "";
+    }
+  }
+
   private static getInputValue(id: string): string {
-    const input = document.getElementById(`stasharr-${id}`) as HTMLInputElement;
-    return input ? input.value : "";
+    if (id === SettingKeys.RootFolderPathId) {
+      return (
+        document.getElementById(
+          `stasharr-${SettingKeys.RootFolderPath}`,
+        ) as HTMLInputElement
+      ).value;
+    }
+
+    const input = document.getElementById(`stasharr-${id}`);
+
+    if (!input) {
+      console.warn(`Element with id stasharr-${id} not found`);
+      return "";
+    }
+
+    if (id === SettingKeys.Proto && input instanceof HTMLInputElement) {
+      return input.checked ? "checked" : "unchecked";
+    }
+
+    if (
+      id === SettingKeys.RootFolderPath &&
+      input instanceof HTMLSelectElement
+    ) {
+      return input.options[input.selectedIndex]?.text || "";
+    }
+
+    return (input as HTMLInputElement).value || "";
   }
 
   public openSettingsModal(event: MouseEvent | KeyboardEvent) {
@@ -160,13 +169,13 @@ export class Settings {
     // ensure options of select elements are updated appropriately
     const config = localStorage.getItem("stasharr-config");
     if (config) {
-      const schemeOption = document.querySelector(
-        `#stasharr-scheme [value='${JSON.parse(localStorage.getItem("stasharr-config")!).scheme}']`,
+      const protocolOption = document.querySelector(
+        `#stasharr-protocol [value='${JSON.parse(localStorage.getItem("stasharr-config")!).protocol}']`,
       );
       const searchOnAddOption = document.querySelector(
         `#stasharr-searchForNewMovie [value='${JSON.parse(localStorage.getItem("stasharr-config")!).searchForNewMovie}']`,
       );
-      schemeOption?.setAttribute("selected", "true");
+      protocolOption?.setAttribute("selected", "true");
       searchOnAddOption?.setAttribute("selected", "true");
     }
 
