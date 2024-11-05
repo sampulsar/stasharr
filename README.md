@@ -30,11 +30,11 @@ Before using the script, you need to configure a few parameters:
 2. **Open the Tampermonkey extension** in your browser:
 3. **Click Settings** under the stasharr script and fill in your details:
 
-![image](https://github.com/user-attachments/assets/c450f902-4d62-400c-a31e-062fb28badab)
+![image](https://github.com/user-attachments/assets/78cff232-a326-4dec-b6f0-058e319cc2e3)
 
-3. **Save your changes**. If your configuration is valid (i.e. your whisparr instance can be reached) your settings will be saved and you will be prompted to allow access to a cross-origin resource.
- - This is so the userscript can interact with your Whisparr instance.
- - Ensure you click **Always allow domain**
+4. When you've input a valid domain and API key, the Tampermonkey extension will prompt to allow access to your Whisparr domain AND the Quality Profile and Root Folder Path dropdowns will populate with additional settings. `This is so the userscript can interact with your Whisparr instance. Ensure you click 'Always allow domain'`
+5. Select the remaining settings
+6. **Save your changes**. If your configuration is valid (i.e. your whisparr instance can be reached) your settings will be saved.
 
 ![image](https://github.com/user-attachments/assets/9804d74c-9c57-4046-85ec-6f6b182cf397)
 
@@ -44,6 +44,10 @@ Before using the script, you need to configure a few parameters:
 - Navigate to a scene on [StashDB](https://stashdb.org/).
 - The script will automatically add a buttons titled "Add scene to Whisparr" under the scene header information and add icons on the scene cards.
 - Click the buttons to add the scene to your Whisparr instance. You will receive a toast notification indicating the success or failure of the operation.
+
+![image](https://github.com/user-attachments/assets/19c5e14d-8e86-41ef-b701-b6b8cd7e11e0)
+![image](https://github.com/user-attachments/assets/6a0d105d-b903-43b2-85dd-5b5c4f7a8173)
+
 
 ## Troubleshooting
 
