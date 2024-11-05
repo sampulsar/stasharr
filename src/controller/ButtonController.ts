@@ -146,8 +146,8 @@ export class ButtonController {
     ButtonController.updateButtonState(
       button,
       faCircleCheck,
-      "Already Downloaded",
-      Styles.Color.YELLOW,
+      "Download Complete",
+      Styles.Color.GREEN,
       isHeader,
       true,
     );
@@ -160,8 +160,8 @@ export class ButtonController {
     ButtonController.updateButtonState(
       button,
       faCircleCheck,
-      "Already in Whisparr",
-      Styles.Color.GREEN,
+      "In Whisparr",
+      Styles.Color.YELLOW,
       isHeader,
       true,
     );
@@ -184,7 +184,7 @@ export class ButtonController {
     button: HTMLButtonElement,
     iconType: IconDefinition,
     text: string,
-    backgroundColor: string,
+    backgroundColor: Styles.Color,
     isHeader: boolean,
     disable: boolean = false,
   ): void {

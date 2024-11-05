@@ -4,7 +4,7 @@ export namespace Styles {
     WHITE = "#ffffffcc",
     YELLOW = "#ffbb33",
     GRAY = "#cccccc",
-    GREEN = "#FFEE2E",
+    GREEN = "#4CAF50",
     RED = "#F44336",
     BLACK = "#000000",
   }
@@ -39,7 +39,7 @@ export namespace Styles {
       return `
         padding: 10px;
         background-color: ${isSuccess ? Styles.Color.YELLOW : Styles.Color.RED};
-        color: white;
+        color: ${Color.WHITE};
         margin: 10px;
         border-radius: 5px;
       `;

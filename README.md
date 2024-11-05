@@ -38,16 +38,14 @@ Before using the script, you need to configure a few parameters:
 
 ![image](https://github.com/user-attachments/assets/9804d74c-9c57-4046-85ec-6f6b182cf397)
 
-
 ## Usage
 
 - Navigate to a scene on [StashDB](https://stashdb.org/).
-- The script will automatically add a buttons titled "Add scene to Whisparr" under the scene header information and add icons on the scene cards.
+- The script will automatically add a buttons under the scene header information and add icons on the scene cards.
 - Click the buttons to add the scene to your Whisparr instance. You will receive a toast notification indicating the success or failure of the operation.
 
 ![image](https://github.com/user-attachments/assets/19c5e14d-8e86-41ef-b701-b6b8cd7e11e0)
 ![image](https://github.com/user-attachments/assets/6a0d105d-b903-43b2-85dd-5b5c4f7a8173)
-
 
 ## Troubleshooting
 
