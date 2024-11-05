@@ -68,7 +68,7 @@ export default class WhisparrService {
 
     try {
       const tmResponse = await GM.xmlHttpRequest(gmDetails);
-      if (tmResponse.status != 200) {
+      if (tmResponse.status < 200 || tmResponse.status >= 300) {
         throw new Error(`Error ${tmResponse.status}: ${tmResponse.statusText}`);
       }
       return tmResponse;
@@ -85,7 +85,7 @@ export default class WhisparrService {
    * @returns {Promise<boolean>} - The response from the Whisparr API, indicating the health status of the instance.
    */ static healthCheck(config: Config): Promise<boolean> {
     return WhisparrService.request(config, "health").then((response) => {
-      return response.status === 200;
+      return response.status >= 200 && response.status < 300;
     });
   }
 
@@ -154,7 +154,7 @@ export default class WhisparrService {
   ): Promise<SceneStatus> {
     try {
       const searchResponse = await WhisparrService.searchScene(config, sceneID);
-      if (searchResponse.status != 200) {
+      if (searchResponse.status < 200 || searchResponse.status >= 300) {
         throw new Error(`Failed to search scene: ${searchResponse.statusText}`);
       }
       const searchData = await searchResponse.response;
@@ -173,7 +173,10 @@ export default class WhisparrService {
           config,
           payload,
         );
-        if (addScenePostResponse.status != 200) {
+        if (
+          addScenePostResponse.status < 200 ||
+          addScenePostResponse.status >= 300
+        ) {
           const postData = await addScenePostResponse.response;
           throw new Error(postData?.[0]?.errorMessage || "Error occurred.");
         }
