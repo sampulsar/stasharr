@@ -189,7 +189,10 @@ export class ButtonController {
     disable: boolean = false,
   ): void {
     button.disabled = disable;
-    button.style.color = Styles.Color.WHITE; // Consistent text color
+    button.style.color =
+      backgroundColor === Styles.Color.YELLOW
+        ? Styles.Color.BLACK
+        : Styles.Color.WHITE;
     button.style.backgroundColor = backgroundColor;
     button.innerHTML = `${icon(iconType).html}${isHeader ? " " + text : ""}`;
   }

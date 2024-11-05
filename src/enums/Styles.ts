@@ -2,10 +2,11 @@ export namespace Styles {
   export enum Color {
     PINK = "#e385ed",
     WHITE = "#ffffffcc",
-    YELLOW = "#4CAF50",
+    YELLOW = "#ffbb33",
     GRAY = "#cccccc",
     GREEN = "#FFEE2E",
     RED = "#F44336",
+    BLACK = "#000000",
   }
 
   export class CardButton {
