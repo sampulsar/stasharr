@@ -144,37 +144,41 @@ export class BsElement {
     defaultOption.textContent = "Loading options...";
     select.appendChild(defaultOption);
 
-    isValidSettings(config)
-      .then((isValid) => {
-        if (isValid) {
-          select.disabled = false;
-          defaultOption.textContent = "Choose an option";
+    if (config.whisparrApiKey != "") {
+      isValidSettings(config)
+        .then((isValid) => {
+          if (isValid) {
+            select.disabled = false;
+            defaultOption.textContent = "Choose an option";
 
-          fetchOptions(config)
-            .then((options) => {
-              options.forEach((option) => {
-                const optionElement = document.createElement("option");
-                optionElement.value = option.id + "";
-                optionElement.textContent = option.name;
+            fetchOptions(config)
+              .then((options) => {
+                options.forEach((option) => {
+                  const optionElement = document.createElement("option");
+                  optionElement.value = option.id + "";
+                  optionElement.textContent = option.name;
 
-                if (defaultValue === option.id) {
-                  optionElement.selected = true;
-                }
-                select.appendChild(optionElement);
+                  if (defaultValue === option.id) {
+                    optionElement.selected = true;
+                  }
+                  select.appendChild(optionElement);
+                });
+              })
+              .catch((reason) => {
+                console.error("Failed to load options:", reason);
+                defaultOption.textContent = "Error loading options";
               });
-            })
-            .catch((reason) => {
-              console.error("Failed to load options:", reason);
-              defaultOption.textContent = "Error loading options";
-            });
-        } else {
+          } else {
+            defaultOption.textContent = "Invalid settings";
+          }
+        })
+        .catch((reason) => {
+          console.log("Settings invalid:", reason);
           defaultOption.textContent = "Invalid settings";
-        }
-      })
-      .catch((reason) => {
-        console.log("Settings invalid:", reason);
-        defaultOption.textContent = "Invalid settings";
-      });
+        });
+    } else {
+      defaultOption.textContent = "Configure Domain and API Key";
+    }
 
     return select;
   }

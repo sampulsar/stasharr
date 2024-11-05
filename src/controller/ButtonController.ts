@@ -14,6 +14,7 @@ import { Styles } from "../enums/Styles";
 
 export class ButtonController {
   static initializeButtons(config: Config) {
+    if (config.whisparrApiKey == "") return;
     const sceneCards = document.querySelectorAll<HTMLElement>(
       ".SceneCard:not([data-initialized])",
     );
