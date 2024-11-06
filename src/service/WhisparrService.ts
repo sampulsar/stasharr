@@ -1,5 +1,6 @@
 import { SceneStatus } from "../enums/SceneStatus";
 import { Config } from "../models/Config";
+import { CommandPayloadBuilder } from "../builder/CommandPayloadBuilder";
 import { ScenePayloadBuilder } from "../builder/ScenePayloadBuilder";
 import { Whisparr } from "../types/types";
 
@@ -150,6 +151,23 @@ export default class WhisparrService {
   }
 
   /**
+   * Run a Whisparr Command by sending a POST request with the command payload.
+   *
+   * @param {Config} config - The configuration object containing API details.
+   * @param {any} body - The payload to send in the request body.
+   * @returns {Promise<VMScriptResponseObject<any>>} - The response from the Whisparr API.
+   */
+  static command(
+    config: Config,
+    body: Whisparr.CommandPayload,
+  ): Promise<VMScriptResponseObject<any>> {
+    const endpoint = "command";
+    return WhisparrService.request(config, endpoint, "POST", body, {
+      "Content-Type": "application/json",
+    });
+  }
+
+  /**
    * Searches for a scene in Whisparr by its scene ID and adds it to the collection if found.
    *
    * This method performs a scene lookup in Whisparr using the provided scene ID. If the scene is found,
@@ -203,6 +221,53 @@ export default class WhisparrService {
       return SceneStatus.ERROR;
     }
   }
+
+/**
+   * Trigger Whisparr to search for a scene.
+   *
+   * @param {Config} config - The configuration object containing API details and user preferences.
+   * @param {string} sceneID - The unique identifier of the scene to search.
+   * @returns {Promise<SceneStatus>} - A promise that resolves with the status of the scene (ADDED, NOT_FOUND, or ERROR).
+   *
+   * @throws {Error} - If the search or add operation fails, an error is thrown with a message detailing the issue.
+   */
+static async search(
+  config: Config,
+  sceneID: string,
+): Promise<SceneStatus> {
+  try {
+    const searchResponse = await WhisparrService.searchScene(config, sceneID);
+    if (searchResponse.status < 200 || searchResponse.status >= 300) {
+      throw new Error(`Failed to search scene: ${searchResponse.statusText}`);
+    }
+    const searchData = await searchResponse.response;
+    if (searchData?.length > 0) {
+      let sceneData = searchData[0];
+
+      let payload = new CommandPayloadBuilder()
+        .setName("MoviesSearch")
+        .setMovieIds([sceneData.movie.id])
+        .build();
+      const addScenePostResponse = await WhisparrService.command(
+        config,
+        payload,
+      );
+      if (
+        addScenePostResponse.status < 200 ||
+        addScenePostResponse.status >= 300
+      ) {
+        const postData = await addScenePostResponse.response;
+        throw new Error(postData?.[0]?.errorMessage || "Error occurred.");
+      }
+      return SceneStatus.ADDED;
+    } else {
+      return SceneStatus.NOT_FOUND;
+    }
+  } catch (error) {
+    console.error("Error during search and add scene:", error);
+    return SceneStatus.ERROR;
+  }
+}
 
   /**
    * Looks up a scene by its Stash ID in the Whisparr API and determines its download status.
