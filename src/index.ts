@@ -1,11 +1,13 @@
 import { ButtonController } from "./controller/ButtonController";
+import { StudioSummaryController } from "./controller/StudioSummaryController";
 import { Settings } from "./settings/Settings";
 
 (async function () {
-  let settings = new Settings();
+  const settings = new Settings();
 
-  // Initialize buttons on initial load
+  // Initialize on initial load
   ButtonController.initializeButtons(settings.config);
+  StudioSummaryController.initialize(settings.config);
 
   const observer = new MutationObserver((mutationsList) => {
     for (const mutation of mutationsList) {
@@ -18,6 +20,12 @@ import { Settings } from "./settings/Settings";
             ) {
               // Re-initializes when there are new SceneCards or Card Headers
               ButtonController.initializeButtons(settings.config);
+            } else if (
+              node.matches(".studio-title") ||
+              node.querySelector(".studio-title")
+            ) {
+              // Re-initializes when there are new studio Titel
+              StudioSummaryController.initialize(settings.config);
             }
           }
         });
@@ -30,4 +38,6 @@ import { Settings } from "./settings/Settings";
 
   // Initialize the menu
   await GM_registerMenuCommand("Settings", settings.openSettingsModal);
+
+
 })();
