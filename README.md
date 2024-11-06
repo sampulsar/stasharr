@@ -16,11 +16,9 @@ This userscript adds additional functionality to the StashDB website which allow
 ## Installation
 
 1. **Install [Tampermonkey](https://www.tampermonkey.net/)** or **[Violentmonkey](https://violentmonkey.github.io/)**: If you haven't already, install your favorite browser extension.
-2. **Click the latest release** or [click here](https://github.com/enymawse/stasharr/releases/latest/download/stasharr.user.js):
-
-- Select the file titled `stasharr.user.js`
-- The userscript extension should prompt to install, choose to install.
-
+2. **Install Stasharr**: Click [`stasharr.user.js`](https://github.com/enymawse/stasharr/releases/latest/download/stasharr.user.js) to install automatically.
+  - The userscript extension should prompt to install, choose to install.
+  - Installing this way will also ensure you get updates as they are released.
 3. **Configure**
 
 ## Configuration
