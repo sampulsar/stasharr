@@ -38,7 +38,7 @@ export namespace Styles {
     static style(isSuccess: boolean) {
       return `
         padding: 10px;
-        background-color: ${isSuccess ? Styles.Color.YELLOW : Styles.Color.RED};
+        background-color: ${isSuccess ? Styles.Color.GREEN : Styles.Color.RED};
         color: ${Color.WHITE};
         margin: 10px;
         border-radius: 5px;
