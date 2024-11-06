@@ -112,4 +112,23 @@ export namespace Whisparr {
     path: string;
     relativePath: string;
   };
+  
+  type WhisparrPerformer = {
+    foreignId: string;
+    id: number;
+    // TODO
+  };
+
+  type WhisparrStudio = {
+    foreignId: string;
+    id: number;
+    monitored: boolean;
+    network: string;
+    qualityProfileId: number;
+    rootFolderPath: string;
+    searchOnAdd: boolean;
+    title: string;
+
+  };
+
 }

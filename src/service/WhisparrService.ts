@@ -118,6 +118,34 @@ export default class WhisparrService {
     return WhisparrService.request(config, endpoint);
   }
 
+      /**
+   * Retrieves performer information from Whisparr using the Stash ID.
+   *
+   * @param {Config} config - The configuration object containing API details.
+   * @param {string} sceneID - The unique Stash ID of the performer to fetch.
+   * @returns {Promise<VMScriptResponseObject<any>>} - A promise that resolves with the response from the Whisparr API containing performer details.
+   */ static getPerformerByStashId(
+    config: Config,
+    sceneID: string,
+  ): Promise<VMScriptResponseObject<any>> {
+    const endpoint = `performer?stashId=${encodeURIComponent(sceneID)}`;
+    return WhisparrService.request(config, endpoint);
+  }
+
+    /**
+   * Retrieves studio information from Whisparr using the Stash ID.
+   *
+   * @param {Config} config - The configuration object containing API details.
+   * @param {string} sceneID - The unique Stash ID of the studio to fetch.
+   * @returns {Promise<VMScriptResponseObject<any>>} - A promise that resolves with the response from the Whisparr API containing studio details.
+   */ static getStudioByStashId(
+    config: Config,
+    sceneID: string,
+  ): Promise<VMScriptResponseObject<any>> {
+    const endpoint = `studio?stashId=${encodeURIComponent(sceneID)}`;
+    return WhisparrService.request(config, endpoint);
+  }
+
   /**
    * Sends a request to search for a scene in Whisparr by its scene ID.
    *
@@ -289,6 +317,60 @@ static async search(
         return data[0].hasFile ? SceneStatus.DOWNLOADED : SceneStatus.EXISTS;
       } else {
         return SceneStatus.NEW;
+      }
+    } catch (error) {
+      console.error("API Call Error:", error);
+      throw new Error("Error checking scene in Whisparr.");
+    }
+  }
+
+  /**
+   * Looks up a performer by its Stash ID in the Whisparr API.
+   *
+   * @param {Config} config - The configuration object with the API details.
+   * @param {string} sceneID - The unique identifier of the performer.
+   * @returns {Promise<SceneStatus>} - The status of the scene (e.g., NEW, EXISTS, DOWNLOADED).
+   * @throws {Error} - If the scene lookup fails or the API call encounters an error.
+   */
+  static async handlePerformerLookup(
+    config: Config,
+    sceneID: string,
+  ): Promise<Whisparr.WhisparrPerformer | null> {
+    try {
+      const response = await WhisparrService.getPerformerByStashId(config, sceneID);
+      const data = await response.response;
+
+      if (data?.length > 0) {
+        return data[0];
+      } else {
+        return null;
+      }
+    } catch (error) {
+      console.error("API Call Error:", error);
+      throw new Error("Error checking scene in Whisparr.");
+    }
+  }
+
+  /**
+   * Looks up a scene by its Stash ID in the Whisparr API and determines its download status.
+   *
+   * @param {Config} config - The configuration object with the API details.
+   * @param {string} sceneID - The unique identifier of the scene.
+   * @returns {Promise<SceneStatus>} - The status of the scene (e.g., NEW, EXISTS, DOWNLOADED).
+   * @throws {Error} - If the scene lookup fails or the API call encounters an error.
+   */
+  static async handleStudioLookup(
+    config: Config,
+    sceneID: string,
+  ): Promise<Whisparr.WhisparrStudio | null> {
+    try {
+      const response = await WhisparrService.getStudioByStashId(config, sceneID);
+      const data = await response.response;
+
+      if (data?.length > 0) {
+        return data[0];
+      } else {
+        return null;
       }
     } catch (error) {
       console.error("API Call Error:", error);
