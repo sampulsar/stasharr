@@ -60,6 +60,11 @@ export namespace Whisparr {
     qualityProfileId: number;
   };
 
+  type CommandPayload = {
+    name: string;
+    movieIds: number[];
+  };
+
   type Quality = {
     id: number;
     name: string;

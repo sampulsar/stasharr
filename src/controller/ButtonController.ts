@@ -1,6 +1,7 @@
 import {
   faCircleCheck,
   faDownload,
+  faSearch,
   faSpinner,
   IconDefinition,
 } from "@fortawesome/free-solid-svg-icons";
@@ -105,9 +106,37 @@ export class ButtonController {
   ) {
     ButtonController.setLoadingState(button, isHeader);
     try {
-      await WhisparrService.searchAndAddScene(config, sceneID);
-      ButtonController.updateButtonForExistingScene(button, isHeader);
-      ToastService.showToast("Scene added successfully!", true);
+      const status = await WhisparrService.handleSceneLookup(
+        config,
+        sceneID,
+      );
+      if (status === SceneStatus.NEW) {
+        const result = await WhisparrService.searchAndAddScene(config, sceneID);
+        if (result === SceneStatus.ADDED) {
+          ButtonController.updateButtonForExistingScene(button, isHeader);
+          ToastService.showToast("Scene added successfully!", true);
+        } else {
+          ButtonController.updateButtonForNewScene(button, isHeader);
+          if (result === SceneStatus.NOT_FOUND) {
+            ToastService.showToast("Scene not found!", false);
+          } else {
+            ToastService.showToast("Error adding Scene!", false);
+          }
+        }
+
+      } else if (status === SceneStatus.EXISTS) {
+        const result = await WhisparrService.search(config, sceneID);
+        ButtonController.updateButtonForExistingScene(button, isHeader);
+        if (result === SceneStatus.ADDED) {
+          ToastService.showToast("Searching for Scene", true);
+        } else {
+          if (result === SceneStatus.NOT_FOUND) {
+            ToastService.showToast("Scene not found!", false);
+          } else {
+            ToastService.showToast("Error Searching for Scene!", false);
+          }
+        }
+      }
     } catch (error) {
       ToastService.showToast(JSON.stringify(error), false);
       console.log(JSON.stringify(error), error);
@@ -149,7 +178,7 @@ export class ButtonController {
       "Download Complete",
       Styles.Color.GREEN,
       isHeader,
-      true,
+      true
     );
   }
 
@@ -159,11 +188,10 @@ export class ButtonController {
   ): void {
     ButtonController.updateButtonState(
       button,
-      faCircleCheck,
+      faSearch,
       "In Whisparr",
       Styles.Color.YELLOW,
       isHeader,
-      true,
     );
   }
 
