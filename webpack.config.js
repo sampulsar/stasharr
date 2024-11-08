@@ -20,7 +20,7 @@ export default {
   entry: path.resolve(__dirname, "src", "index.ts"),
   output: {
     path: path.resolve(__dirname, "dist"),
-    filename: dev ? "stasharr.dev.user.js" : "stasharr.user.js",
+    filename: dev ? "fanarr.dev.user.js" : "fanarr.user.js",
   },
   devtool: dev ? "eval" : false,
   module: {

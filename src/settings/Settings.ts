@@ -32,8 +32,8 @@ export class Settings {
   }
 
   private buildSettingsModal(): HTMLElement {
-    const modalBuilder = new ModalBuilder("stasharr-settingsModal")
-      .setModalTitle("stasharr Settings")
+    const modalBuilder = new ModalBuilder("fanarr-settingsModal")
+      .setModalTitle("fanarr Settings")
       .addProtocol(this._config)
       .addDomain(this._config)
       .addApiKey(this._config)
@@ -49,7 +49,7 @@ export class Settings {
   }
 
   private closeModalHandler() {
-    const modal = document.getElementById("stasharr-settingsModal");
+    const modal = document.getElementById("fanarr-settingsModal");
     if (modal) {
       const bsModal = new Modal(modal);
       bsModal.hide();
@@ -122,17 +122,17 @@ export class Settings {
     switch (id) {
       case SettingKeys.RootFolderPathId:
         select = document.getElementById(
-          `stasharr-${SettingKeys.RootFolderPath}`,
+          `fanarr-${SettingKeys.RootFolderPath}`,
         ) as HTMLSelectElement;
         return select.value;
       case SettingKeys.RootFolderPath:
         select = document.getElementById(
-          `stasharr-${SettingKeys.RootFolderPath}`,
+          `fanarr-${SettingKeys.RootFolderPath}`,
         ) as HTMLSelectElement;
         return select.options[select.selectedIndex].text;
       case SettingKeys.QualityProfile:
         select = document.getElementById(
-          `stasharr-${SettingKeys.QualityProfile}`,
+          `fanarr-${SettingKeys.QualityProfile}`,
         ) as HTMLSelectElement;
         return select.value;
       default:
@@ -145,15 +145,15 @@ export class Settings {
     if (id === SettingKeys.RootFolderPathId) {
       return (
         document.getElementById(
-          `stasharr-${SettingKeys.RootFolderPath}`,
+          `fanarr-${SettingKeys.RootFolderPath}`,
         ) as HTMLInputElement
       ).value;
     }
 
-    const input = document.getElementById(`stasharr-${id}`);
+    const input = document.getElementById(`fanarr-${id}`);
 
     if (!input) {
-      console.warn(`Element with id stasharr-${id} not found`);
+      console.warn(`Element with id fanarr-${id} not found`);
       return "";
     }
 
@@ -172,16 +172,16 @@ export class Settings {
   }
 
   public openSettingsModal(event: MouseEvent | KeyboardEvent) {
-    const modal = document.getElementById("stasharr-settingsModal");
+    const modal = document.getElementById("fanarr-settingsModal");
 
     // ensure options of select elements are updated appropriately
-    const config = localStorage.getItem("stasharr-config");
+    const config = localStorage.getItem("fanarr-config");
     if (config) {
       const protocolOption = document.querySelector(
-        `#stasharr-protocol [value='${JSON.parse(localStorage.getItem("stasharr-config")!).protocol}']`,
+        `#fanarr-protocol [value='${JSON.parse(localStorage.getItem("fanarr-config")!).protocol}']`,
       );
       const searchOnAddOption = document.querySelector(
-        `#stasharr-searchForNewMovie [value='${JSON.parse(localStorage.getItem("stasharr-config")!).searchForNewMovie}']`,
+        `#fanarr-searchForNewMovie [value='${JSON.parse(localStorage.getItem("fanarr-config")!).searchForNewMovie}']`,
       );
       protocolOption?.setAttribute("selected", "true");
       searchOnAddOption?.setAttribute("selected", "true");
@@ -191,7 +191,7 @@ export class Settings {
       const m = new Modal(modal);
       m.show();
     } else {
-      ToastService.showToast("stasharr failed to build modal");
+      ToastService.showToast("fanarr failed to build modal");
     }
   }
 

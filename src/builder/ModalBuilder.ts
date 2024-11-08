@@ -59,7 +59,7 @@ export class ModalBuilder {
     const bodyDiv = this.getOrCreateBody();
 
     const inputSwitch = BsElement.inputSwitch({
-      id: `stasharr-${SettingKeys.Proto}`,
+      id: `fanarr-${SettingKeys.Proto}`,
       label: "HTTPS",
       checked: config.protocol,
       tooltip:
@@ -75,7 +75,7 @@ export class ModalBuilder {
   addDomain(config: Config): ModalBuilder {
     const bodyDiv = this.getOrCreateBody();
     const floatingInputElement = BsElement.floatingInput({
-      id: `stasharr-${SettingKeys.Domain}`,
+      id: `fanarr-${SettingKeys.Domain}`,
       name: SettingKeys.Domain,
       label: "Whisparr URL or IP address with port number",
       tooltip:
@@ -92,7 +92,7 @@ export class ModalBuilder {
   addApiKey(config: Config): ModalBuilder {
     const bodyDiv = this.getOrCreateBody();
     const floatingInputElement = BsElement.floatingInput({
-      id: `stasharr-${SettingKeys.ApiKey}`,
+      id: `fanarr-${SettingKeys.ApiKey}`,
       name: SettingKeys.ApiKey,
       label: "Whisparr API Key",
       tooltip: "Found in Whisparr under Settings -> General",
@@ -116,7 +116,7 @@ export class ModalBuilder {
   }
 
   refreshQualityProfiles(): any {
-    const selectId = `stasharr-${SettingKeys.QualityProfile}`;
+    const selectId = `fanarr-${SettingKeys.QualityProfile}`;
     const selectElement = document.getElementById(selectId);
     const rawUserSettings = Settings.domConfigValues();
     selectElement?.replaceWith(
@@ -136,7 +136,7 @@ export class ModalBuilder {
   }
 
   refreshRootFolderPaths(): any {
-    const selectId = `stasharr-${SettingKeys.RootFolderPath}`;
+    const selectId = `fanarr-${SettingKeys.RootFolderPath}`;
     const selectElement = document.getElementById(selectId);
     const rawUserSettings = Settings.domConfigValues();
     selectElement?.replaceWith(
@@ -156,7 +156,7 @@ export class ModalBuilder {
   }
 
   addQualityProfile(config: Config): ModalBuilder {
-    const selectId = `stasharr-${SettingKeys.QualityProfile}`;
+    const selectId = `fanarr-${SettingKeys.QualityProfile}`;
 
     const bodyDiv = this.getOrCreateBody();
 
@@ -177,7 +177,7 @@ export class ModalBuilder {
   }
 
   addRootFolderPaths(config: Config): ModalBuilder {
-    const selectId = `stasharr-${SettingKeys.RootFolderPath}`;
+    const selectId = `fanarr-${SettingKeys.RootFolderPath}`;
 
     const bodyDiv = this.getOrCreateBody();
 
@@ -198,7 +198,7 @@ export class ModalBuilder {
   }
 
   addSearchOnAdd(config: Config): ModalBuilder {
-    const selectId = `stasharr-${SettingKeys.SearchForNewMovie}`;
+    const selectId = `fanarr-${SettingKeys.SearchForNewMovie}`;
 
     const bodyDiv = this.getOrCreateBody();
 
@@ -289,12 +289,12 @@ export class ModalBuilder {
     const inputFloat = document.createElement("input");
     inputFloat.type = "text";
     inputFloat.classList.add("form-control");
-    inputFloat.id = `stasharr-${name}`;
+    inputFloat.id = `fanarr-${name}`;
     inputFloat.name = name;
     inputFloat.placeholder = "";
 
     const labelFor = document.createElement("label");
-    labelFor.setAttribute("for", `stasharr-${name}`);
+    labelFor.setAttribute("for", `fanarr-${name}`);
     labelFor.innerHTML = label;
     labelFor.style.color = Styles.Color.GRAY;
 
@@ -318,7 +318,7 @@ export class ModalBuilder {
 
     const inputLabel = document.createElement("label");
     inputLabel.innerText = label;
-    inputLabel.setAttribute("for", `stasharr-${name}`);
+    inputLabel.setAttribute("for", `fanarr-${name}`);
 
     if (tooltip) {
       this.addTooltip(inputLabel, tooltip);
@@ -354,7 +354,7 @@ export class ModalBuilder {
   ): HTMLSelectElement {
     const selectElement = document.createElement("select");
     selectElement.classList.add("form-control");
-    selectElement.id = `stasharr-${name}`;
+    selectElement.id = `fanarr-${name}`;
     selectElement.name = name;
 
     options.forEach((option) => {
@@ -376,7 +376,7 @@ export class ModalBuilder {
     const inputElement = document.createElement("input");
     inputElement.type = type;
     inputElement.classList.add("form-control");
-    inputElement.id = `stasharr-${name}`;
+    inputElement.id = `fanarr-${name}`;
     inputElement.name = name;
 
     if (placeholder) inputElement.placeholder = placeholder;

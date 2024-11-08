@@ -1,8 +1,8 @@
-# stasharr
+# fanarr
 
-![GitHub Release](https://img.shields.io/github/v/release/enymawse/stasharr?style=for-the-badge)
+![GitHub Release](https://img.shields.io/github/v/release/enymawse/fanarr?style=for-the-badge)
 <br/>
-![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/enymawse/stasharr/release.yml?style=for-the-badge)
+![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/enymawse/fanarr/release.yml?style=for-the-badge)
 
 This userscript adds additional functionality to the StashDB website which allows you to seamlessly integrate your local Whisparr (only v3+ supported) server with minimal interation.
 
@@ -16,7 +16,7 @@ This userscript adds additional functionality to the StashDB website which allow
 ## Installation
 
 1. **Install [Tampermonkey](https://www.tampermonkey.net/)** or **[Violentmonkey](https://violentmonkey.github.io/)**: If you haven't already, install your favorite browser extension.
-2. **Install Stasharr**: Click [`stasharr.user.js`](https://github.com/enymawse/stasharr/releases/latest/download/stasharr.user.js) to install automatically.
+2. **Install fanarr**: Click [`fanarr.user.js`](https://github.com/enymawse/fanarr/releases/latest/download/fanarr.user.js) to install automatically.
   - The userscript extension should prompt to install, choose to install.
   - Installing this way will also ensure you get updates as they are released.
 3. **Configure**
@@ -27,7 +27,7 @@ Before using the script, you need to configure a few parameters:
 
 1. **Navigate to [fanDB](https://fansdb.cc/)**.
 2. **Open the userscript extension** in your browser:
-3. **Click Settings** under the stasharr script and fill in your details:
+3. **Click Settings** under the fanarr script and fill in your details:
 
 ![image](https://github.com/user-attachments/assets/78cff232-a326-4dec-b6f0-058e319cc2e3)
 
@@ -51,7 +51,7 @@ Before using the script, you need to configure a few parameters:
 - Ensure that the URL and API key for your Whisparr instance are correct.
 - Check the browser console for any errors during execution.
 - Ensure your Whisparr server can be reached through the browser.
-- Report bugs [here](https://github.com/enymawse/stasharr/issues/new/choose)
+- Report bugs [here](https://github.com/enymawse/fanarr/issues/new/choose)
 
 ## License
 
