@@ -11,7 +11,7 @@ export default {
     meta.repository.url + "/releases/latest/download/stasharr.user.js",
   supportURL: meta.repository.url,
   license: meta.license,
-  match: ["*://stashdb.org/*"],
+  match: ["*://fansdb.cc/*"],
   require: [],
   grant: ["GM_registerMenuCommand", "GM_xmlhttpRequest", "GM.xmlHttpRequest"],
 };

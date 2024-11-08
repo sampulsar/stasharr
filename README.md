@@ -25,7 +25,7 @@ This userscript adds additional functionality to the StashDB website which allow
 
 Before using the script, you need to configure a few parameters:
 
-1. **Navigate to [StashDB](https://stashdb.org)**.
+1. **Navigate to [fanDB](https://fansdb.cc/)**.
 2. **Open the userscript extension** in your browser:
 3. **Click Settings** under the stasharr script and fill in your details:
 

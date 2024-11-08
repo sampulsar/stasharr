@@ -3,6 +3,6 @@ export function extractSceneID(sceneCard?: HTMLElement) {
     const sceneUrl = sceneCard.querySelector("a")?.href;
     return sceneUrl?.split("/scenes/")[1];
   } else {
-    return window.location.href.split("https://stashdb.org/scenes/")[1];
+    return window.location.href.split("https://fansdb.cc/scenes/")[1];
   }
 }

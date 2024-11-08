@@ -10,7 +10,7 @@ export class StudioSummaryController {
             document.querySelector<HTMLElement>(".studio-title");
 
         // Get the current path.
-        // If the full URL is https://stashdb.org/studios/5ee16943-0da6-4ee4-94c1-54172e3d0b7e
+        // If the full URL is https://fansdb.cc/studios/5ee16943-0da6-4ee4-94c1-54172e3d0b7e
         const path = window.location.pathname;
 
         const module = path.split('/')[1];
