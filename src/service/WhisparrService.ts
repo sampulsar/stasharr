@@ -118,7 +118,7 @@ export default class WhisparrService {
     return WhisparrService.request(config, endpoint);
   }
 
-      /**
+  /**
    * Retrieves performer information from Whisparr using the Stash ID.
    *
    * @param {Config} config - The configuration object containing API details.
@@ -132,7 +132,7 @@ export default class WhisparrService {
     return WhisparrService.request(config, endpoint);
   }
 
-    /**
+  /**
    * Retrieves studio information from Whisparr using the Stash ID.
    *
    * @param {Config} config - The configuration object containing API details.
@@ -250,7 +250,7 @@ export default class WhisparrService {
     }
   }
 
-/**
+  /**
    * Trigger Whisparr to search for a scene.
    *
    * @param {Config} config - The configuration object containing API details and user preferences.
@@ -259,43 +259,60 @@ export default class WhisparrService {
    *
    * @throws {Error} - If the search or add operation fails, an error is thrown with a message detailing the issue.
    */
-static async search(
-  config: Config,
-  sceneID: string,
-): Promise<SceneStatus> {
-  try {
-    const searchResponse = await WhisparrService.searchScene(config, sceneID);
-    if (searchResponse.status < 200 || searchResponse.status >= 300) {
-      throw new Error(`Failed to search scene: ${searchResponse.statusText}`);
-    }
-    const searchData = await searchResponse.response;
-    if (searchData?.length > 0) {
-      let sceneData = searchData[0];
-
-      let payload = new CommandPayloadBuilder()
-        .setName("MoviesSearch")
-        .setMovieIds([sceneData.movie.id])
-        .build();
-      const addScenePostResponse = await WhisparrService.command(
-        config,
-        payload,
-      );
-      if (
-        addScenePostResponse.status < 200 ||
-        addScenePostResponse.status >= 300
-      ) {
-        const postData = await addScenePostResponse.response;
-        throw new Error(postData?.[0]?.errorMessage || "Error occurred.");
+  static async search(config: Config, sceneID: string): Promise<SceneStatus> {
+    try {
+      const searchResponse = await WhisparrService.searchScene(config, sceneID);
+      if (searchResponse.status < 200 || searchResponse.status >= 300) {
+        throw new Error(`Failed to search scene: ${searchResponse.statusText}`);
       }
-      return SceneStatus.ADDED;
-    } else {
-      return SceneStatus.NOT_FOUND;
+      const searchData = await searchResponse.response;
+      if (searchData?.length > 0) {
+        let sceneData = searchData[0];
+
+        let payload = new CommandPayloadBuilder()
+          .setName("MoviesSearch")
+          .setMovieIds([sceneData.movie.id])
+          .build();
+        const addScenePostResponse = await WhisparrService.command(
+          config,
+          payload,
+        );
+        if (
+          addScenePostResponse.status < 200 ||
+          addScenePostResponse.status >= 300
+        ) {
+          const postData = await addScenePostResponse.response;
+          throw new Error(postData?.[0]?.errorMessage || "Error occurred.");
+        }
+        return SceneStatus.ADDED;
+      } else {
+        return SceneStatus.NOT_FOUND;
+      }
+    } catch (error) {
+      console.error("Error during search and add scene:", error);
+      return SceneStatus.ERROR;
     }
-  } catch (error) {
-    console.error("Error during search and add scene:", error);
-    return SceneStatus.ERROR;
   }
-}
+
+  static async searchAll(config: Config, stashIds: string[]): Promise<void> {
+    try {
+      await stashIds.map((stashId) => {
+        return WhisparrService.search(config, stashId);
+      });
+    } catch (error) {
+      console.error("Error during searchAll:", error);
+    }
+  }
+
+  static async addAll(config: Config, stashIds: string[]): Promise<void> {
+    try {
+      await stashIds.map((stashId) => {
+        return WhisparrService.searchAndAddScene(config, stashId);
+      });
+    } catch (error) {
+      console.error("Error during addAll: ", error);
+    }
+  }
 
   /**
    * Looks up a scene by its Stash ID in the Whisparr API and determines its download status.
@@ -337,7 +354,10 @@ static async search(
     sceneID: string,
   ): Promise<Whisparr.WhisparrPerformer | null> {
     try {
-      const response = await WhisparrService.getPerformerByStashId(config, sceneID);
+      const response = await WhisparrService.getPerformerByStashId(
+        config,
+        sceneID,
+      );
       const data = await response.response;
 
       if (data?.length > 0) {
@@ -364,7 +384,10 @@ static async search(
     sceneID: string,
   ): Promise<Whisparr.WhisparrStudio | null> {
     try {
-      const response = await WhisparrService.getStudioByStashId(config, sceneID);
+      const response = await WhisparrService.getStudioByStashId(
+        config,
+        sceneID,
+      );
       const data = await response.response;
 
       if (data?.length > 0) {

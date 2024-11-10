@@ -1,6 +1,13 @@
 import { ButtonController } from "./controller/ButtonController";
+import { ScenesListController } from "./controller/ScenesListController";
 import { StudioSummaryController } from "./controller/StudioSummaryController";
+import { StashDB } from "./enums/StashDB";
 import { Settings } from "./settings/Settings";
+import {
+  shouldButtonsInit,
+  shouldScenesListInit,
+  shouldStudioInit,
+} from "./util/util";
 
 (async function () {
   const settings = new Settings();
@@ -8,24 +15,31 @@ import { Settings } from "./settings/Settings";
   // Initialize on initial load
   ButtonController.initializeButtons(settings.config);
   StudioSummaryController.initialize(settings.config);
+  ScenesListController.initialize(settings.config);
 
   const observer = new MutationObserver((mutationsList) => {
+    const path: string[] = window.location.pathname.split("/");
+    const module: string | null = path.length > 1 ? path[1] : null;
+    const stashId: string | null = path.length > 2 ? path[2] : null;
+
     for (const mutation of mutationsList) {
       if (mutation.type === "childList" && mutation.addedNodes.length > 0) {
         mutation.addedNodes.forEach((node) => {
           if (node instanceof HTMLElement) {
-            if (
-              node.matches(".SceneCard, .card-header") ||
-              node.querySelector(".SceneCard, .card-header")
-            ) {
-              // Re-initializes when there are new SceneCards or Card Headers
+            if (shouldButtonsInit(node)) {
+              observer.disconnect();
               ButtonController.initializeButtons(settings.config);
-            } else if (
-              node.matches(".studio-title") ||
-              node.querySelector(".studio-title")
-            ) {
-              // Re-initializes when there are new studio Titel
+              observer.observe(document.body, observerConfig);
+            }
+            if (shouldStudioInit(node)) {
+              observer.disconnect();
               StudioSummaryController.initialize(settings.config);
+              observer.observe(document.body, observerConfig);
+            }
+            if (shouldScenesListInit(node)) {
+              observer.disconnect();
+              ScenesListController.initialize(settings.config);
+              observer.observe(document.body, observerConfig);
             }
           }
         });
@@ -38,6 +52,4 @@ import { Settings } from "./settings/Settings";
 
   // Initialize the menu
   await GM_registerMenuCommand("Settings", settings.openSettingsModal);
-
-
 })();

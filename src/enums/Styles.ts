@@ -34,6 +34,28 @@ export namespace Styles {
     `;
   }
 
+  export class SearchAllAvailable {
+    static style: string = `
+        background-color: ${Color.PINK};
+        color: ${Color.WHITE};
+        padding: 10px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+    `;
+  }
+
+  export class SearchAllExisting {
+    static style: string = `
+        background-color: ${Color.YELLOW};
+        color: ${Color.BLACK};
+        padding: 10px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+      `;
+  }
+
   export class Toast {
     static style(isSuccess: boolean) {
       return `
