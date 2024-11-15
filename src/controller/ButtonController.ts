@@ -3,17 +3,19 @@ import {
   faDownload,
   faSearch,
   faSpinner,
+  faVideoSlash,
   IconDefinition,
 } from "@fortawesome/free-solid-svg-icons";
 import { Config } from "../models/Config";
 import { icon } from "@fortawesome/fontawesome-svg-core";
-import { extractStashIdFromSceneCard } from "../util/util";
+import { addTooltip, extractStashIdFromSceneCard } from "../util/util";
 import SceneService from "../service/SceneService";
 import ToastService from "../service/ToastService";
 import { SceneLookupStatus, SceneStatus } from "../enums/SceneStatus";
 import { Styles } from "../enums/Styles";
 import { Stasharr } from "../enums/Stasharr";
 import { StashDB } from "../enums/StashDB";
+import { SceneSearchCommandStatus } from "../enums/SceneSearchCommandStatus";
 
 export class ButtonController {
   static initializeButtons(config: Config) {
@@ -91,6 +93,8 @@ export class ButtonController {
       case SceneStatus.NOT_IN_WHISPARR:
         ButtonController.updateButtonForNewScene(button, isHeader, status);
         break;
+      case SceneStatus.EXCLUDED:
+        ButtonController.updateButtonForExcludedScene(button, isHeader, status);
       default:
         break;
     }
@@ -123,14 +127,10 @@ export class ButtonController {
     } else if (status === SceneStatus.EXISTS_AND_NO_FILE) {
       const result = await SceneService.triggerWhisparrSearch(config, sceneID);
       ButtonController.updateButtonForExistingScene(button, isHeader, status);
-      if (result === SceneLookupStatus.ADDED) {
+      if (result === SceneSearchCommandStatus.CREATED) {
         ToastService.showToast("Searching for Scene", true);
       } else {
-        if (result === SceneLookupStatus.NOT_FOUND) {
-          ToastService.showToast("Scene not found!", false);
-        } else {
-          ToastService.showToast("Error Searching for Scene!", false);
-        }
+        ToastService.showToast("Error Searching for Scene!", false);
       }
     }
   }
@@ -164,12 +164,12 @@ export class ButtonController {
     button.innerHTML = `${isHeader ? icon(faSpinner, { classes: ["fa-spin"] }).html : ""} Loading`;
   }
 
-  // Update button states
   private static updateButtonForDownloadedScene(
     button: HTMLButtonElement,
     isHeader: boolean,
     status: SceneStatus,
   ): void {
+    addTooltip(button, "Scene downloaded already.");
     ButtonController.updateButtonState(
       button,
       faCircleCheck,
@@ -181,11 +181,32 @@ export class ButtonController {
     );
   }
 
+  public static updateButtonForExcludedScene(
+    button: HTMLButtonElement,
+    isHeader: boolean,
+    status: SceneStatus,
+  ): void {
+    addTooltip(button, "This scene is on your Exclusion List.");
+    ButtonController.updateButtonState(
+      button,
+      faVideoSlash,
+      "Excluded",
+      Styles.Color.RED,
+      isHeader,
+      status,
+      true,
+    );
+  }
+
   public static updateButtonForExistingScene(
     button: HTMLButtonElement,
     isHeader: boolean,
     status: SceneStatus,
   ): void {
+    addTooltip(
+      button,
+      "Scene exists but no file has been downloaded. Trigger Whisparr to search for this scene.",
+    );
     ButtonController.updateButtonState(
       button,
       faSearch,
@@ -201,6 +222,7 @@ export class ButtonController {
     isHeader: boolean,
     status: SceneStatus,
   ): void {
+    addTooltip(button, "Add this scene to Whisparr.");
     ButtonController.updateButtonState(
       button,
       faDownload,

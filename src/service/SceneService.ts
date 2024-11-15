@@ -1,9 +1,11 @@
 import { CommandPayloadBuilder } from "../builder/CommandPayloadBuilder";
 import { ScenePayloadBuilder } from "../builder/ScenePayloadBuilder";
+import { SceneSearchCommandStatus } from "../enums/SceneSearchCommandStatus";
 import { SceneLookupStatus, SceneStatus } from "../enums/SceneStatus";
 import { Config } from "../models/Config";
 import { StashIdToSceneCardAndStatusMap } from "../types/stasharr";
 import { Whisparr } from "../types/whisparr";
+import ExclusionListService from "./ExclusionListService";
 import ServiceBase from "./ServiceBase";
 import ToastService from "./ToastService";
 import WhisparrService from "./WhisparrService";
@@ -50,6 +52,10 @@ export default class SceneService extends ServiceBase {
     config: Config,
     stashId: string,
   ): Promise<SceneStatus> {
+    const exclusionMap = await ExclusionListService.getExclusionsMap(config);
+    if (exclusionMap.size > 0) {
+      if (exclusionMap.has(stashId)) return SceneStatus.EXCLUDED;
+    }
     const scene = await SceneService.getSceneByStashId(config, stashId);
     if (scene) {
       return scene.hasFile
@@ -96,12 +102,12 @@ export default class SceneService extends ServiceBase {
    *
    * @param {Config} config - The configuration object containing API details and user preferences.
    * @param {string} stashId - The unique identifier of the scene to search.
-   * @returns {Promise<SceneLookupStatus>} - A promise that resolves with the status of the scene (ADDED, NOT_FOUND, or ERROR).
+   * @returns {Promise<SceneSearchCommandStatus>} - A promise that resolves with the status of the scene (ADDED, NOT_FOUND, or ERROR).
    */
   static async triggerWhisparrSearch(
     config: Config,
     stashId: string,
-  ): Promise<SceneLookupStatus> {
+  ): Promise<SceneSearchCommandStatus> {
     const scene: Whisparr.WhisparrScene | null =
       await SceneService.getSceneByStashId(config, stashId);
     if (scene) {
@@ -114,12 +120,10 @@ export default class SceneService extends ServiceBase {
         payload,
       );
       if (moviesSearchCommandResponse) {
-        return SceneLookupStatus.ADDED;
+        return SceneSearchCommandStatus.CREATED;
       }
-      return SceneLookupStatus.ERROR;
-    } else {
-      return SceneLookupStatus.NOT_FOUND;
     }
+    return SceneSearchCommandStatus.ERROR;
   }
 
   /**
