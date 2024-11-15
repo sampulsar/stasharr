@@ -1,14 +1,20 @@
 import { icon } from "@fortawesome/fontawesome-svg-core";
 import { Styles } from "../enums/Styles";
 import { Config } from "../models/Config";
-import { faPlus, faSearch } from "@fortawesome/free-solid-svg-icons";
+import {
+  faDownload,
+  faPlus,
+  faSearch,
+} from "@fortawesome/free-solid-svg-icons";
 import { Stasharr } from "../enums/Stasharr";
 import { SceneStatus } from "../enums/SceneStatus";
-import { addTooltip, extractSceneID } from "../util/util";
-import WhisparrService from "../service/WhisparrService";
+import { addTooltip, extractStashIdFromSceneCard } from "../util/util";
 import ToastService from "../service/ToastService";
 import { StashDB } from "../enums/StashDB";
-import { isNumber, parseInt } from "lodash";
+import { parseInt } from "lodash";
+import SceneService from "../service/SceneService";
+import { ButtonController } from "./ButtonController";
+import { StashIdToSceneCardAndStatusMap } from "../types/stasharr";
 
 export class ScenesListController {
   static initialize(config: Config) {
@@ -23,7 +29,7 @@ export class ScenesListController {
       const searchAllAvailableButton = document.querySelector(
         Stasharr.DOMSelector.SearchAllExisting,
       );
-      if (sceneListCommandRow && !addAllAvailableButton) {
+      if (sceneListCommandRow) {
         if (!addAllAvailableButton) {
           sceneListCommandRow.insertBefore(
             ScenesListController.createAddAllAvaiableButton(config),
@@ -48,13 +54,13 @@ export class ScenesListController {
     button.type = "button";
     button.style.cssText = Styles.SearchAllAvailable.style;
     button.id = Stasharr.ID.AddAllAvailable;
-    button.innerHTML = `${icon(faPlus).html}`;
+    button.innerHTML = `${icon(faDownload).html} Add All`;
     addTooltip(button, "Add all available scenes on this page to Whisparr.");
 
     button.addEventListener("click", () => {
       ScenesListController.handleAllAvailableButtonClick(
         config,
-        SceneStatus.NEW,
+        SceneStatus.NOT_IN_WHISPARR,
       );
     });
 
@@ -70,13 +76,13 @@ export class ScenesListController {
     button.type = "button";
     button.style.cssText = Styles.SearchAllExisting.style;
     button.id = Stasharr.ID.SearchAllExisting;
-    button.innerHTML = `${icon(faSearch).html}`;
+    button.innerHTML = `${icon(faSearch).html} Search All`;
     addTooltip(button, "Search all available scenes on this page in Whisparr.");
 
     button.addEventListener("click", () => {
       ScenesListController.handleAllAvailableButtonClick(
         config,
-        SceneStatus.EXISTS,
+        SceneStatus.EXISTS_AND_NO_FILE,
       );
     });
 
@@ -93,29 +99,57 @@ export class ScenesListController {
         .querySelector<HTMLElement>(StashDB.DOMSelector.DataPage)
         ?.getAttribute(StashDB.DataAttribute.DataPage) || "{Page not found}",
     );
-    let stashIds: string[] = [];
-    document
-      .querySelectorAll<HTMLElement>(
-        Stasharr.DOMSelector.SceneCardByButtonStatus(status),
-      )
-      .forEach((node) => {
-        const stashId = extractSceneID(node);
-        if (stashId) stashIds.push(stashId);
-      });
-    if (status === SceneStatus.EXISTS) {
-      WhisparrService.searchAll(config, stashIds).then(() => {
+    let stashIdtoSceneCardAndStatusMap: StashIdToSceneCardAndStatusMap =
+      new Map();
+    let sceneCards = document.querySelectorAll<HTMLElement>(
+      Stasharr.DOMSelector.SceneCardByButtonStatus(status),
+    );
+    sceneCards.forEach((node) => {
+      const stashId = extractStashIdFromSceneCard(node);
+      if (stashId) {
+        stashIdtoSceneCardAndStatusMap.set(stashId, {
+          status: null,
+          sceneCard: node,
+        });
+      }
+    });
+    if (status === SceneStatus.EXISTS_AND_NO_FILE) {
+      SceneService.triggerWhisparrSearchAll(
+        config,
+        Array.from(stashIdtoSceneCardAndStatusMap.keys()),
+      ).then(() => {
         ToastService.showToast(
-          `Triggered search for all ${stashIds.length} existing scenes on page ${pageNumber + 1}.`,
+          `Triggered search for all ${stashIdtoSceneCardAndStatusMap.size} existing scenes on page ${pageNumber + 1}.`,
           true,
         );
       });
-    } else if (status === SceneStatus.NEW) {
-      WhisparrService.addAll(config, stashIds).then(() => {
-        ToastService.showToast(
-          `Triggered search for all ${stashIds.length} new scenes on page ${pageNumber + 1}.`,
-          true,
-        );
-      });
+    } else if (status === SceneStatus.NOT_IN_WHISPARR) {
+      SceneService.lookupAndAddAll(config, stashIdtoSceneCardAndStatusMap).then(
+        (sceneMap) => {
+          ToastService.showToast(
+            `Added ${sceneMap.size} new scenes to Whisparr from page ${pageNumber + 1}.`,
+            true,
+          );
+          ScenesListController.updateButtonsForExistingScenes(sceneMap);
+        },
+      );
     }
+  }
+
+  private static updateButtonsForExistingScenes(
+    sceneMap: StashIdToSceneCardAndStatusMap,
+  ) {
+    sceneMap.forEach((sceneMapObject) => {
+      let button = sceneMapObject.sceneCard.querySelector<HTMLButtonElement>(
+        Stasharr.DOMSelector.CardButton,
+      );
+      if (button && sceneMapObject.status) {
+        ButtonController.updateButtonForExistingScene(
+          button,
+          false,
+          sceneMapObject.status,
+        );
+      }
+    });
   }
 }

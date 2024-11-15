@@ -42,9 +42,65 @@ export namespace Whisparr {
     itemType: string;
   };
 
+  type LookupSceneResponse = {
+    foreignId: string;
+    movie: WhisparrScene;
+    id: number;
+  };
+
   type WhisparrScene = {
+    title: string;
+    sortTitle: string;
+    status: string;
+    overview: string;
+    releaseDate: string;
+    year: number;
+    studioTitle: string;
+    studioForeignId: string;
+    path: string;
+    qualityProfileId: number;
+    hasFile: boolean;
+    monitored: boolean;
+    isAvailable: true;
+    folderName: string;
+    runtime: number;
+    stashId: string;
+    titleSlug: string;
+    rootFolderPath: string;
+    genres: string[];
+    tags: string[];
+    added: string;
     foreignId: string;
     movie: Movie;
+    id: number;
+  };
+
+  type WhisparrCommandResponse = {
+    name: string;
+    commandName: string;
+    message: string;
+    body: {
+      movieIds: number[];
+      sendUpdatesToClient: boolean;
+      updateScheduledTask: boolean;
+      completionMessage: string;
+      requiresDiskAccess: boolean;
+      isExclusive: boolean;
+      isTypeExclusive: boolean;
+      isLongRunning: boolean;
+      name: string;
+      trigger: string;
+      suppressMessages: boolean;
+    };
+    priority: string;
+    status: string;
+    result: string;
+    queued: string;
+    started: string;
+    trigger: string;
+    stateChangeTime: string;
+    sendUpdatesToClient: boolean;
+    updateScheduledTask: boolean;
     id: number;
   };
 
@@ -58,6 +114,24 @@ export namespace Whisparr {
       searchForMovie: boolean;
     };
     qualityProfileId: number;
+  };
+
+  type PerformerPayload = {
+    tags: string[];
+    foreignId: string;
+    searchOnAdd: boolean;
+    qualityProfileId: number;
+    rootFolderPath: string;
+    monitored: boolean;
+  };
+
+  type StudioPayload = {
+    foreignId: string;
+    searchOnAdd: boolean;
+    qualityProfileId: number;
+    rootFolderPath: string;
+    monitored: boolean;
+    tags: string[];
   };
 
   type CommandPayload = {
@@ -112,11 +186,29 @@ export namespace Whisparr {
     path: string;
     relativePath: string;
   };
-  
+
   type WhisparrPerformer = {
+    fullName: string;
+    gender: string;
+    hairColor: string;
+    ethnicity: string;
+    status: string;
+    careerStart: number;
     foreignId: string;
+    images: [
+      {
+        coverType: string;
+        url: string;
+        remoteUrl: string;
+      },
+    ];
+    monitored: boolean;
+    rootFolderPath: string;
+    qualityProfile: string;
+    searchOnAdd: boolean;
+    tags: string[];
+    added: string;
     id: number;
-    // TODO
   };
 
   type WhisparrStudio = {
@@ -128,7 +220,5 @@ export namespace Whisparr {
     rootFolderPath: string;
     searchOnAdd: boolean;
     title: string;
-
   };
-
 }

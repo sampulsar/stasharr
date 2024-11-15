@@ -18,8 +18,31 @@ export namespace Styles {
         border: none;
         border-radius: 10%;
         padding: 5px;
-        cursor: pointer;
         color: ${Color.WHITE};
+    `;
+  }
+
+  export class AddPerformerButton {
+    static style: string = `
+      color: ${Color.PINK}
+    `;
+  }
+
+  export class AddStudioButton {
+    static style: string = `
+      color: ${Color.PINK}
+    `;
+  }
+
+  export class AddPerformerButtonLoading {
+    static style: string = `
+      color: ${Color.GRAY}
+    `;
+  }
+
+  export class AddStudioButtonLoading {
+    static style: string = `
+      color: ${Color.GRAY}
     `;
   }
 
@@ -30,7 +53,6 @@ export namespace Styles {
         padding: 10px;
         border: none;
         border-radius: 5px;
-        cursor: pointer;
     `;
   }
 
@@ -41,7 +63,6 @@ export namespace Styles {
         padding: 10px;
         border: none;
         border-radius: 5px;
-        cursor: pointer;
     `;
   }
 
@@ -52,19 +73,6 @@ export namespace Styles {
         padding: 10px;
         border: none;
         border-radius: 5px;
-        cursor: pointer;
       `;
-  }
-
-  export class Toast {
-    static style(isSuccess: boolean) {
-      return `
-        padding: 10px;
-        background-color: ${isSuccess ? Styles.Color.GREEN : Styles.Color.RED};
-        color: ${Color.WHITE};
-        margin: 10px;
-        border-radius: 5px;
-      `;
-    }
   }
 }

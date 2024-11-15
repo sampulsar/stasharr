@@ -7,10 +7,10 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { Config } from "../models/Config";
 import { icon } from "@fortawesome/fontawesome-svg-core";
-import { extractSceneID } from "../util/util";
-import WhisparrService from "../service/WhisparrService";
+import { extractStashIdFromSceneCard } from "../util/util";
+import SceneService from "../service/SceneService";
 import ToastService from "../service/ToastService";
-import { SceneStatus } from "../enums/SceneStatus";
+import { SceneLookupStatus, SceneStatus } from "../enums/SceneStatus";
 import { Styles } from "../enums/Styles";
 import { Stasharr } from "../enums/Stasharr";
 import { StashDB } from "../enums/StashDB";
@@ -25,28 +25,25 @@ export class ButtonController {
       if (!sceneCard.querySelector(Stasharr.DOMSelector.CardButton)) {
         const button = ButtonController.createCardButton();
         sceneCard.appendChild(button);
-        const sceneID = extractSceneID(sceneCard);
-        if (sceneID) {
-          try {
-            const status = await WhisparrService.handleSceneLookup(
-              config,
-              sceneID,
-            );
-            ButtonController.updateButton(button, status);
-            button.addEventListener("click", () =>
-              ButtonController.handleButtonClick(config, sceneID, button),
-            );
-          } catch (error) {
-            ToastService.showToast(JSON.stringify(error), false);
-            console.error(error);
-          }
+        const stashId = extractStashIdFromSceneCard(sceneCard);
+        if (stashId) {
+          const status: SceneStatus = await SceneService.getSceneStatus(
+            config,
+            stashId,
+          );
+          ButtonController.updateButton(button, status);
+          button.addEventListener("click", () =>
+            ButtonController.handleButtonClick(config, stashId, button),
+          );
         }
       }
     });
 
     (async () => {
       const cardHeader: HTMLElement | null =
-        document.querySelector<HTMLElement>(StashDB.DOMSelector.CardHeader);
+        document.querySelector<HTMLElement>(
+          StashDB.DOMSelector.SceneInfoCardHeader,
+        );
 
       if (
         cardHeader &&
@@ -55,26 +52,21 @@ export class ButtonController {
         const isHeader = true;
         const triggerButton = ButtonController.createHeaderButton();
         cardHeader.appendChild(triggerButton);
-        const sceneID = extractSceneID();
+        const sceneID = extractStashIdFromSceneCard();
         if (sceneID) {
-          try {
-            const status = await WhisparrService.handleSceneLookup(
+          const status: SceneStatus = await SceneService.getSceneStatus(
+            config,
+            sceneID,
+          );
+          ButtonController.updateButton(triggerButton, status, isHeader);
+          triggerButton.addEventListener("click", () => {
+            ButtonController.handleButtonClick(
               config,
               sceneID,
+              triggerButton,
+              isHeader,
             );
-            ButtonController.updateButton(triggerButton, status, isHeader);
-            triggerButton.addEventListener("click", () => {
-              ButtonController.handleButtonClick(
-                config,
-                sceneID,
-                triggerButton,
-                isHeader,
-              );
-            });
-          } catch (error) {
-            ToastService.showToast(JSON.stringify(error), false);
-            console.log(error);
-          }
+          });
         }
       }
     })();
@@ -86,17 +78,17 @@ export class ButtonController {
     isHeader: boolean = false,
   ) {
     switch (status) {
-      case SceneStatus.DOWNLOADED:
+      case SceneStatus.EXISTS_AND_HAS_FILE:
         ButtonController.updateButtonForDownloadedScene(
           button,
           isHeader,
           status,
         );
         break;
-      case SceneStatus.EXISTS:
+      case SceneStatus.EXISTS_AND_NO_FILE:
         ButtonController.updateButtonForExistingScene(button, isHeader, status);
         break;
-      case SceneStatus.NEW:
+      case SceneStatus.NOT_IN_WHISPARR:
         ButtonController.updateButtonForNewScene(button, isHeader, status);
         break;
       default:
@@ -111,41 +103,35 @@ export class ButtonController {
     isHeader: boolean = false,
   ) {
     ButtonController.setLoadingState(button, isHeader);
-    try {
-      const status = await WhisparrService.handleSceneLookup(config, sceneID);
-      if (status === SceneStatus.NEW) {
-        const result = await WhisparrService.searchAndAddScene(config, sceneID);
-        if (result === SceneStatus.ADDED) {
-          ButtonController.updateButtonForExistingScene(
-            button,
-            isHeader,
-            status,
-          );
-          ToastService.showToast("Scene added successfully!", true);
-        } else {
-          ButtonController.updateButtonForNewScene(button, isHeader, status);
-          if (result === SceneStatus.NOT_FOUND) {
-            ToastService.showToast("Scene not found!", false);
-          } else {
-            ToastService.showToast("Error adding Scene!", false);
-          }
-        }
-      } else if (status === SceneStatus.EXISTS) {
-        const result = await WhisparrService.search(config, sceneID);
+    const status: SceneStatus = await SceneService.getSceneStatus(
+      config,
+      sceneID,
+    );
+    if (status === SceneStatus.NOT_IN_WHISPARR) {
+      const result = await SceneService.lookupAndAddScene(config, sceneID);
+      if (result === SceneLookupStatus.ADDED) {
         ButtonController.updateButtonForExistingScene(button, isHeader, status);
-        if (result === SceneStatus.ADDED) {
-          ToastService.showToast("Searching for Scene", true);
+        ToastService.showToast("Scene added successfully!", true);
+      } else {
+        ButtonController.updateButtonForNewScene(button, isHeader, status);
+        if (result === SceneLookupStatus.NOT_FOUND) {
+          ToastService.showToast("Scene not found!", false);
         } else {
-          if (result === SceneStatus.NOT_FOUND) {
-            ToastService.showToast("Scene not found!", false);
-          } else {
-            ToastService.showToast("Error Searching for Scene!", false);
-          }
+          ToastService.showToast("Error adding Scene!", false);
         }
       }
-    } catch (error) {
-      ToastService.showToast(JSON.stringify(error), false);
-      console.log(JSON.stringify(error), error);
+    } else if (status === SceneStatus.EXISTS_AND_NO_FILE) {
+      const result = await SceneService.triggerWhisparrSearch(config, sceneID);
+      ButtonController.updateButtonForExistingScene(button, isHeader, status);
+      if (result === SceneLookupStatus.ADDED) {
+        ToastService.showToast("Searching for Scene", true);
+      } else {
+        if (result === SceneLookupStatus.NOT_FOUND) {
+          ToastService.showToast("Scene not found!", false);
+        } else {
+          ToastService.showToast("Error Searching for Scene!", false);
+        }
+      }
     }
   }
 
@@ -156,7 +142,7 @@ export class ButtonController {
     button.innerHTML = icon(faDownload).html[0]; // Icon only
     button.setAttribute(
       Stasharr.DataAttribute.SceneStatus,
-      SceneStatus.NOT_FOUND.toString(),
+      SceneStatus.NOT_IN_WHISPARR.toString(),
     );
     return button;
   }
@@ -195,7 +181,7 @@ export class ButtonController {
     );
   }
 
-  private static updateButtonForExistingScene(
+  public static updateButtonForExistingScene(
     button: HTMLButtonElement,
     isHeader: boolean,
     status: SceneStatus,
@@ -241,6 +227,7 @@ export class ButtonController {
         : Styles.Color.WHITE;
     button.style.backgroundColor = backgroundColor;
     button.innerHTML = `${icon(iconType).html}${isHeader ? " " + text : ""}`;
+    button.removeAttribute(Stasharr.DataAttribute.SceneStatus);
     button.setAttribute(Stasharr.DataAttribute.SceneStatus, status.toString());
   }
 }
