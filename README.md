@@ -1,8 +1,8 @@
 # stasharr
 
 ![GitHub Release](https://img.shields.io/github/v/release/enymawse/stasharr?style=for-the-badge)
-<br/>
 ![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/enymawse/stasharr/release.yml?style=for-the-badge)
+[![Commitizen friendly](https://img.shields.io/badge/commitizen-friendly-brightgreen.svg?style=for-the-badge)](http://commitizen.github.io/cz-cli/)
 
 This userscript adds additional functionality to the StashDB website which allows you to seamlessly integrate your local Whisparr (only v3+ supported) server with minimal interation.
 
@@ -17,8 +17,10 @@ This userscript adds additional functionality to the StashDB website which allow
 
 1. **Install [Tampermonkey](https://www.tampermonkey.net/)** or **[Violentmonkey](https://violentmonkey.github.io/)**: If you haven't already, install your favorite browser extension.
 2. **Install Stasharr**: Click [`stasharr.user.js`](https://github.com/enymawse/stasharr/releases/latest/download/stasharr.user.js) to install automatically.
-  - The userscript extension should prompt to install, choose to install.
-  - Installing this way will also ensure you get updates as they are released.
+
+- The userscript extension should prompt to install, choose to install.
+- Installing this way will also ensure you get updates as they are released.
+
 3. **Configure**
 
 ## Configuration
