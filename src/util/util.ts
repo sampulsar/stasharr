@@ -1,5 +1,21 @@
+import { SceneStatus, SceneStatusType } from '../enums/SceneStatus';
 import { StashDB } from '../enums/StashDB';
 import { Tooltip } from 'bootstrap';
+import { Styles } from '../enums/Styles';
+import {
+  faCircleCheck,
+  faDownload,
+  faSearch,
+  faVideoSlash,
+  IconDefinition,
+} from '@fortawesome/free-solid-svg-icons';
+import { Config } from '../models/Config';
+import SceneService from '../service/SceneService';
+import { StashIdToSceneCardAndStatusMap } from '../types/stasharr';
+import { render } from 'solid-js/web';
+import SceneButton from '../components/SceneButton';
+
+export const ObserverConfig = { childList: true, subtree: true };
 
 export function extractStashIdFromSceneCard(sceneCard?: HTMLElement) {
   if (sceneCard) {
@@ -83,10 +99,67 @@ export function removeTooltip(element: HTMLElement): void {
   if (existingTooltipInstance) existingTooltipInstance.dispose();
 }
 
-export function getSelectorFromId(id: string): string {
-  return `#${id}`;
-}
-
 export function responseStatusCodeOK(code: number) {
   return code < 300 && code >= 200;
+}
+
+export function stateByStatus(
+  initialStatus: SceneStatusType,
+): [boolean, string, IconDefinition] {
+  let state = { disabled: false, color: Styles.Color.PINK, icon: faDownload };
+  switch (initialStatus) {
+    case SceneStatus.NOT_IN_WHISPARR:
+      state.color = Styles.Color.PINK;
+      state.icon = faDownload;
+      break;
+    case SceneStatus.EXCLUDED:
+      state.color = Styles.Color.RED;
+      state.icon = faVideoSlash;
+      state.disabled = true;
+      break;
+    case SceneStatus.EXISTS_AND_HAS_FILE:
+      state.color = Styles.Color.GREEN;
+      state.icon = faCircleCheck;
+      state.disabled = true;
+      break;
+    case SceneStatus.EXISTS_AND_NO_FILE:
+      state.color = Styles.Color.YELLOW;
+      state.icon = faSearch;
+      break;
+    default:
+      break;
+  }
+  return [state.disabled, state.color, state.icon];
+}
+
+export const fetchSceneStatus = async (p: {
+  config: Config;
+  stashId: string;
+}) => {
+  const response = await SceneService.getSceneStatus(p.config, p.stashId);
+  return response;
+};
+
+export const rehydrateSceneCards = async (
+  config: Config,
+  sceneMap: StashIdToSceneCardAndStatusMap,
+) => {
+  sceneMap.forEach((sceneMapItem, stashId) => {
+    sceneMapItem.sceneCard.querySelector('.stasharr-card-button')?.remove();
+    render(
+      () => SceneButton({ config: config, stashId: stashId, header: false }),
+      sceneMapItem.sceneCard,
+    );
+  });
+};
+
+export function tooltips() {
+  const tooltipTriggerList = document.querySelectorAll(
+    '[data-bs-toggle="tooltip"]',
+  );
+  tooltipTriggerList.forEach((tooltipTriggerEl) => {
+    const tooltip = Tooltip.getInstance(tooltipTriggerEl);
+    if (tooltip) tooltip.dispose();
+    new Tooltip(tooltipTriggerEl);
+  });
 }

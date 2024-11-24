@@ -1,0 +1,15 @@
+$colors: (
+  pink: #e385ed,
+  white: #fff,
+  yellow: #d9822b,
+  gray: #f8f9fa,
+  green: #0f9960,
+  red: #db3737,
+  black: #000,
+);
+
+:root {
+  @each $key, $value in $colors {
+    --stasharr-color-#{"#{$key}"}: #{$value};
+  }
+}

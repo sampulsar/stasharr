@@ -17,7 +17,7 @@ if (dev) {
 
 export default {
   mode: dev ? 'development' : 'production',
-  entry: path.resolve(__dirname, 'src', 'index.ts'),
+  entry: path.resolve(__dirname, 'src', 'index.tsx'),
   output: {
     path: path.resolve(__dirname, 'dist'),
     filename: dev ? 'stasharr.dev.user.js' : 'stasharr.user.js',
@@ -31,12 +31,28 @@ export default {
         exclude: /node_modules/,
       },
       {
-        test: /\.scss$/,
-        use: [
-          'style-loader', // Injects CSS into the DOM
-          'css-loader', // Interprets @import and url() like import/require()
-          'sass-loader', // Loads and compiles SCSS files
-        ],
+        test: /\.(jsx|tsx)$/,
+        exclude: /node_modules/,
+        use: {
+          loader: 'babel-loader',
+          options: {
+            presets: ['babel-preset-solid'],
+          },
+        },
+      },
+      {
+        test: /\.jsx?$/,
+        include: /node_modules\/solid-fontawesome/,
+        use: {
+          loader: 'babel-loader',
+          options: {
+            presets: ['babel-preset-solid'],
+          },
+        },
+      },
+      {
+        test: /\.(css|scss)$/,
+        use: ['style-loader', 'css-loader', 'sass-loader'],
       },
     ],
   },
@@ -47,23 +63,17 @@ export default {
         minimizer: [
           new TerserPlugin({
             terserOptions: {
-              mangle: false,
               compress: {
-                defaults: false,
+                defaults: true,
                 ecma: '2020',
                 drop_console: ['debug'],
-              },
-              format: {
-                comments: false,
-                indent_level: 2,
-                beautify: true,
               },
             },
           }),
         ],
       },
   resolve: {
-    extensions: ['.ts', '.js'],
+    extensions: ['.ts', '.js', '.tsx'],
   },
   plugins: [
     new UserscriptPlugin({
