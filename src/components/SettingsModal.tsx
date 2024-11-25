@@ -18,7 +18,6 @@ import { parseInt } from 'lodash';
 import RootFolderPathSelect from './RootFolderPath';
 import SearchOnAddSelect from './SearchOnAdd';
 import { Stasharr } from '../enums/Stasharr';
-import StashInstance from './StashInstance';
 
 function SettingsModal(props: { config: Config }) {
   const [show, setShow] = createSignal(false);
@@ -91,7 +90,6 @@ function SettingsModal(props: { config: Config }) {
             <RootFolderPathSelect rootFolderPaths={rootFolderPaths()} />
             <SearchOnAddSelect />
           </Show>
-          <StashInstance />
         </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={handleClose}>
