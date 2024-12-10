@@ -62,7 +62,19 @@ a:hover.whisparr-card-button {
   left: 5px;
   border-radius: 10%;
   padding: 5px;
-  @include mixins.button-variant(--stasharr-color-gray, --stasharr-color-black);
+  background-color: var(--stasharr-color-pink);
+}
+
+.stash-card-button,
+a:hover.stash-card-button {
+  border: none;
+  position: absolute;
+  cursor: pointer;
+  bottom: 80px;
+  left: 5px;
+  border-radius: 10%;
+  padding: 5px;
+  background-color: var(--bs-dark);
 }
 
 .stasharr-studio-add,

@@ -1,10 +1,11 @@
-import { useSettings } from '../../contexts/useSettings';
-import { Stasharr } from '../../enums/Stasharr';
+import { useSettings } from '../../../contexts/useSettings';
+import { Stasharr } from '../../../enums/Stasharr';
 
 const StashInstance = () => {
   const { store, setStore } = useSettings();
 
   const handleChange = (value: string) => {
+    value = value.replace(/\/+$/, '');
     setStore('stashDomain', value === '' ? null : value);
   };
 
