@@ -33,7 +33,7 @@ jobs:
       - name: Upload Release Artifact
         if: ${{ steps.release.outputs.release_created }}
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.RELEASE_PLEASE_STASHARR }}
         run: |
           gh release upload ${{ steps.release.outputs.tag_name }} ./dist/stasharr.user.js
           gh release upload ${{ steps.release.outputs.tag_name }} ./dist/stasharr.meta.js
